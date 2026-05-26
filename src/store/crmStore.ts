@@ -538,7 +538,7 @@ export const useCRMStore = create<CRMState>((set, get) => {
             leadSource: l.lead_source || '',
             dealValue: Number(l.deal_value),
             assignedOwnerId: l.assigned_owner_id || '',
-            notesCount: 0,
+            notesCount: (nData || []).filter(n => n.lead_id === l.id).length,
             statusId: l.status_id,
             tags: l.tags || [],
             lastActivityDate: l.last_activity_date ? l.last_activity_date.split('T')[0] : '',

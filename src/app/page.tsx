@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { useCRMStore } from '@/store/crmStore';
 import { 
@@ -28,7 +28,11 @@ import {
   TrendingUp,
   LayoutDashboard,
   Mail,
-  Building
+  Building,
+  MessageCircle,
+  Calculator,
+  Star,
+  Quote
 } from 'lucide-react';
 
 export default function LandingPage() {
@@ -46,10 +50,32 @@ export default function LandingPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
 
+  // Calculator State
+  const [calcUnits, setCalcUnits] = useState(100);
+  const [calcPrice, setCalcPrice] = useState(200);
+  const savings = Math.round(calcUnits * calcPrice * 0.42);
+
+  // FAQ State
+  const [openFaq, setOpenFaq] = useState<number | null>(null);
+
   // UI State
   const [activeSection, setActiveSection] = useState('hero');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+
+  // Scroll-reveal refs
+  const observerRef = useRef<IntersectionObserver | null>(null);
+  useEffect(() => {
+    observerRef.current = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+        }
+      });
+    }, { threshold: 0.1 });
+    document.querySelectorAll('.reveal').forEach(el => observerRef.current?.observe(el));
+    return () => observerRef.current?.disconnect();
+  }, []);
 
   // Scroll spy & Header background shadow
   useEffect(() => {
@@ -141,9 +167,7 @@ export default function LandingPage() {
       {/* Dynamic shipping route styles injected inline */}
       <style dangerouslySetInnerHTML={{__html: `
         @keyframes shipping-dash {
-          to {
-            stroke-dashoffset: -40px;
-          }
+          to { stroke-dashoffset: -40px; }
         }
         .animate-shipping-route {
           stroke-dasharray: 6, 6;
@@ -161,6 +185,25 @@ export default function LandingPage() {
         .ping-ring {
           animation: pulse-ring 3s cubic-bezier(0.215, 0.610, 0.355, 1) infinite;
         }
+        /* Scroll-reveal animations */
+        .reveal {
+          opacity: 0;
+          transform: translateY(28px);
+          transition: opacity 0.7s ease, transform 0.7s ease;
+        }
+        .reveal.visible {
+          opacity: 1;
+          transform: translateY(0);
+        }
+        .reveal-delay-1 { transition-delay: 0.1s; }
+        .reveal-delay-2 { transition-delay: 0.2s; }
+        .reveal-delay-3 { transition-delay: 0.3s; }
+        /* WhatsApp pulse */
+        @keyframes wa-pulse {
+          0%, 100% { box-shadow: 0 0 0 0 rgba(37,211,102,0.5); }
+          50% { box-shadow: 0 0 0 10px rgba(37,211,102,0); }
+        }
+        .wa-pulse { animation: wa-pulse 2.5s infinite; }
       `}} />
 
       {/* HEADER / NAVIGATION */}
@@ -427,6 +470,30 @@ export default function LandingPage() {
                   className="animate-shipping-route" 
                 />
 
+                {/* Ship Icon Animated along China Route */}
+                <g fill="#10B981">
+                  <path d="M -8 2 L 6 2 L 8 -1 L 3 -1 L 2 -3 L -2 -3 L -3 -1 L -8 -1 Z" />
+                  <animateMotion 
+                    dur="16s" 
+                    repeatCount="indefinite" 
+                    rotate="auto"
+                  >
+                    <mpath href="#china-route" />
+                  </animateMotion>
+                </g>
+
+                {/* Plane Icon Animated along USA Route */}
+                <g fill="#60A5FA">
+                  <path d="M -6 -1.5 L -3 -1.5 L -1 -4.5 L 1 -4.5 L 0 -1.5 L 4 -1.5 L 6 0 L 4 1.5 L 0 1.5 L 1 4.5 L -1 4.5 L -3 1.5 L -6 1.5 Z" />
+                  <animateMotion 
+                    dur="12s" 
+                    repeatCount="indefinite" 
+                    rotate="auto"
+                  >
+                    <mpath href="#usa-route" />
+                  </animateMotion>
+                </g>
+
                 {/* Nodes / Hub Locations */}
                 
                 {/* Hub: China */}
@@ -434,7 +501,7 @@ export default function LandingPage() {
                   <circle r="12" fill="#2563EB" opacity="0.15" />
                   <circle r="6" fill="#2563EB" opacity="0.35" className="animate-ping" />
                   <circle r="4" fill="#3B82F6" />
-                  <text y="-12" textAnchor="middle" fill="#94A3B8" fontSize="9" fontWeight="bold" className="font-sans">סין (Shenzhen)</text>
+                  <text y="-12" textAnchor="middle" fill="#94A3B8" fontSize="9" fontWeight="bold" className="font-sans">SZX-HUB (מרכז אספקה)</text>
                 </g>
 
                 {/* Hub: US East */}
@@ -624,38 +691,44 @@ export default function LandingPage() {
         <div className="max-w-7xl mx-auto px-6">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
             
-            {/* Photo Column - Now with 2 separate partner photo placeholders */}
+            {/* Photo Column - Real partner photos */}
             <div className="lg:col-span-5 order-2 lg:order-1 grid grid-cols-2 gap-4 w-full max-w-md mx-auto">
-              
-              {/* Partner 1: Ofek */}
-              <div className="relative aspect-[3/4] rounded-2xl overflow-hidden border border-slate-200/80 shadow-md bg-white p-2 flex flex-col justify-end group hover:border-[#2563EB] hover:shadow-lg transition-all duration-300">
-                <div className="w-full h-full bg-[#1E293B] rounded-xl flex flex-col justify-end p-4 text-white relative overflow-hidden">
-                  <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 to-transparent z-10" />
-                  <div className="absolute top-3 right-3 w-8 h-8 rounded-full bg-blue-500/20 border border-blue-400/30 flex items-center justify-center text-xs font-bold text-blue-400 z-20">
-                    א
+
+              {/* Partner 1: Shalev (Right Card in RTL) */}
+              <div className="relative rounded-2xl overflow-hidden border-2 border-slate-200/60 shadow-lg bg-white group hover:border-[#2563EB] hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
+                <div className="w-full aspect-[3/4] relative overflow-hidden">
+                  <img
+                    src="/shalev.png"
+                    alt="שלו סגל – מייסד שותף ומנכ&quot;ל Nexora"
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-[#0F172A]/80 via-transparent to-transparent" />
+                  <div className="absolute bottom-0 right-0 left-0 p-3">
+                    <h4 className="text-sm font-extrabold text-white text-right">שלו סגל</h4>
+                    <p className="text-[10px] text-blue-300 text-right font-medium">מייסד שותף ומנכ&quot;ל</p>
                   </div>
-                  {/* Photo Area placeholder inside the card */}
-                  <div className="w-full h-24 bg-slate-800/40 rounded-lg mb-2 flex items-center justify-center border border-slate-700/50 z-20 overflow-hidden">
-                    <User className="w-8 h-8 text-slate-500 group-hover:scale-110 transition-transform duration-300" />
+                  <div className="absolute top-2 right-2 w-6 h-6 rounded-full bg-blue-500/90 border border-blue-300/50 flex items-center justify-center text-[9px] font-bold text-white shadow">
+                    CEO
                   </div>
-                  <h4 className="text-sm font-bold z-20 relative text-right">אופק אוק</h4>
-                  <p className="text-[10px] text-slate-400 z-20 relative text-right">שותף מייסד ומנהל רכש</p>
                 </div>
               </div>
 
-              {/* Partner 2: Co-founder */}
-              <div className="relative aspect-[3/4] rounded-2xl overflow-hidden border border-slate-200/80 shadow-md bg-white p-2 flex flex-col justify-end group hover:border-[#10B981] hover:shadow-lg transition-all duration-300">
-                <div className="w-full h-full bg-[#1E293B] rounded-xl flex flex-col justify-end p-4 text-white relative overflow-hidden">
-                  <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 to-transparent z-10" />
-                  <div className="absolute top-3 right-3 w-8 h-8 rounded-full bg-emerald-500/20 border border-emerald-400/30 flex items-center justify-center text-xs font-bold text-emerald-400 z-20">
-                    ש
+              {/* Partner 2: Ofek (Left Card in RTL) */}
+              <div className="relative rounded-2xl overflow-hidden border-2 border-slate-200/60 shadow-lg bg-white group hover:border-[#10B981] hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
+                <div className="w-full aspect-[3/4] relative overflow-hidden">
+                  <img
+                    src="/ofek.png"
+                    alt="אופק אוקונסקי – מייסד שותף, סמנכ&quot;ל תפעול וטכנולוגיות Nexora"
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-[#0F172A]/80 via-transparent to-transparent" />
+                  <div className="absolute bottom-0 right-0 left-0 p-3">
+                    <h4 className="text-sm font-extrabold text-white text-right">אופק אוקונסקי</h4>
+                    <p className="text-[10px] text-emerald-300 text-right font-medium">מייסד שותף, סמנכ&quot;ל תפעול</p>
                   </div>
-                  {/* Photo Area placeholder inside the card */}
-                  <div className="w-full h-24 bg-slate-800/40 rounded-lg mb-2 flex items-center justify-center border border-slate-700/50 z-20 overflow-hidden">
-                    <User className="w-8 h-8 text-slate-500 group-hover:scale-110 transition-transform duration-300" />
+                  <div className="absolute top-2 right-2 w-6 h-6 rounded-full bg-emerald-500/90 border border-emerald-300/50 flex items-center justify-center text-[9px] font-bold text-white shadow">
+                    COO
                   </div>
-                  <h4 className="text-sm font-bold z-20 relative text-right">שותף מייסד</h4>
-                  <p className="text-[10px] text-slate-400 z-20 relative text-right">שותף מייסד ומנהל לוגיסטיקה</p>
                 </div>
               </div>
 
@@ -972,11 +1045,26 @@ export default function LandingPage() {
                     </>
                   ) : (
                     <>
-                      <span>אני רוצה בדיקת רווחיות והוזלת עלויות חינם לייבוא הבא שלי</span>
+                      <span>אני רוצה בדיקת רווחיות חינם</span>
                       <ArrowLeft className="w-5 h-5" />
                     </>
                   )}
                 </button>
+
+                {/* WhatsApp Alternative */}
+                <div className="text-center mt-3">
+                  <a
+                    href="https://wa.me/972500000000?text=%D7%94%D7%99%D7%99%2C%20%D7%90%D7%A0%D7%99%20%D7%A8%D7%95%D7%A6%D7%94%20%D7%9C%D7%A9%D7%9E%D7%95%D7%A2%20%D7%99%D7%95%D7%AA%D7%A8%20%D7%A2%D7%9C%20%D7%91%D7%93%D7%99%D7%A7%D7%AA%20%D7%A8%D7%95%D7%95%D7%97%D7%99%D7%95%D7%AA%20%D7%97%D7%99%D7%A0%D7%9D"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 text-sm text-slate-400 hover:text-[#25D366] transition-colors duration-200"
+                  >
+                    <svg viewBox="0 0 24 24" className="w-4 h-4 fill-current" aria-hidden="true">
+                      <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+                    </svg>
+                    או שלח לנו הודעת וואטסאפ ישירה
+                  </a>
+                </div>
 
               </form>
             )}
@@ -985,6 +1073,133 @@ export default function LandingPage() {
 
         </div>
       </section>
+
+      {/* TESTIMONIALS SECTION */}
+      <section className="py-20 bg-[#F8FAFC] border-t border-slate-100">
+        <div className="max-w-6xl mx-auto px-6">
+          <div className="text-center mb-12 reveal">
+            <span className="text-xs font-bold text-[#2563EB] tracking-wider uppercase mb-3 block">מה הלקוחות שלנו אומרים</span>
+            <h2 className="text-2xl md:text-3xl font-extrabold text-[#0F172A]">אנשים שכבר עשו את הצעד</h2>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {[
+              { quote: 'הייתי סקפטי בהתחלה, אבל אחרי הייבוא הראשון חסכתי ₪38,000 ברבעון אחד בלבד. הצוות של Nexora עשה הכל בשבילי ואני לא הרגשתי כלום מהבלגן.', name: 'יוסי ב.', role: 'בעל עסק לכלי בית, רמת גן', stars: 5 },
+              { quote: 'ניסיתי בעבר לייבא לבד ונתקעתי במכס 3 שבועות. עם Nexora הכל עבר חלק ובזמן. מחיר עלה חצי ממה שהייתי משלם לספק המקומי.', name: 'רחל מ.', role: 'יזמית ייצור טקסטיל, תל אביב', stars: 5 },
+              { quote: 'הבדיקת רווחיות שעשו לי חינם הפתיעה אותי – גיליתי שאני משלם כפול על מוצרים שאני קונה 3 שנים. היום אני חוסך ₪25K בחודש.', name: 'משה כ.', role: 'מנהל רכש, חברת ציוד רפואי', stars: 5 }
+            ].map((t, i) => (
+              <div key={i} className={`reveal reveal-delay-${i+1} bg-white rounded-2xl p-6 border border-slate-200/80 shadow-sm hover:shadow-md transition-all duration-300 flex flex-col gap-4`}>
+                <div className="flex gap-1">{Array.from({length: t.stars}).map((_,s) => <Star key={s} className="w-4 h-4 fill-amber-400 text-amber-400" />)}</div>
+                <p className="text-slate-600 text-sm leading-relaxed text-right flex-1">&quot;{t.quote}&quot;</p>
+                <div className="flex items-center gap-3 justify-end pt-3 border-t border-slate-100">
+                  <div className="text-right">
+                    <div className="text-xs font-bold text-[#0F172A]">{t.name}</div>
+                    <div className="text-[10px] text-slate-500">{t.role}</div>
+                  </div>
+                  <div className="w-9 h-9 rounded-full bg-gradient-to-br from-[#2563EB] to-[#10B981] flex items-center justify-center text-white font-bold text-xs flex-shrink-0">{t.name.charAt(0)}</div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* SAVINGS CALCULATOR SECTION */}
+      <section className="py-20 bg-white border-t border-slate-100">
+        <div className="max-w-3xl mx-auto px-6">
+          <div className="text-center mb-10 reveal">
+            <span className="text-xs font-bold text-[#10B981] tracking-wider uppercase mb-3 block">מחשבון חיסכון</span>
+            <h2 className="text-2xl md:text-3xl font-extrabold text-[#0F172A] mb-2">כמה כסף העסק שלך יכול לחסוך?</h2>
+            <p className="text-slate-500 text-sm">הזז את הסליידרים וגלה כמה אתה משאיר על הרצפה</p>
+          </div>
+          <div className="reveal bg-gradient-to-br from-[#0F172A] to-[#1E293B] rounded-3xl p-8 md:p-12 border border-slate-700 shadow-2xl">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+              <div className="text-right">
+                <label className="block text-xs font-bold text-slate-300 mb-3">כמות יחידות לרכישה בחודש</label>
+                <input
+                  type="range" min="10" max="10000" step="10" value={calcUnits}
+                  onChange={e => setCalcUnits(Number(e.target.value))}
+                  className="w-full accent-blue-500 cursor-pointer"
+                />
+                <div className="flex justify-between text-[10px] text-slate-500 mt-1">
+                  <span>10,000</span><span className="text-blue-400 font-bold text-sm">{calcUnits.toLocaleString()} יח&apos;</span><span>10</span>
+                </div>
+              </div>
+              <div className="text-right">
+                <label className="block text-xs font-bold text-slate-300 mb-3">מחיר קנייה נוכחי בארץ (₪ ליחידה)</label>
+                <input
+                  type="range" min="10" max="5000" step="10" value={calcPrice}
+                  onChange={e => setCalcPrice(Number(e.target.value))}
+                  className="w-full accent-emerald-500 cursor-pointer"
+                />
+                <div className="flex justify-between text-[10px] text-slate-500 mt-1">
+                  <span>₪5,000</span><span className="text-emerald-400 font-bold text-sm">₪{calcPrice.toLocaleString()}</span><span>₪10</span>
+                </div>
+              </div>
+            </div>
+            <div className="text-center p-6 rounded-2xl bg-gradient-to-r from-emerald-500/10 to-blue-500/10 border border-emerald-500/20">
+              <p className="text-slate-400 text-xs mb-2">חיסכון שנתי אפשרי בייבוא ישיר</p>
+              <div className="text-4xl md:text-5xl font-extrabold text-emerald-400">₪{(savings * 12).toLocaleString()}</div>
+              <p className="text-slate-500 text-xs mt-2">כ-₪{savings.toLocaleString()} בחודש | חיסכון ממוצע של 42% מעלות הרכש</p>
+            </div>
+            <div className="text-center mt-6">
+              <a href="#cta" onClick={(e) => handleScrollTo(e, 'cta')}
+                className="inline-flex items-center gap-2 px-8 py-3.5 bg-[#10B981] hover:bg-[#059669] text-white font-bold rounded-2xl transition-all shadow-lg shadow-emerald-500/20 text-sm">
+                אני רוצה לחסוך ₪{(savings * 12).toLocaleString()} בשנה
+                <ArrowLeft className="w-4 h-4" />
+              </a>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* FAQ SECTION */}
+      <section className="py-20 bg-[#F8FAFC] border-t border-slate-100">
+        <div className="max-w-3xl mx-auto px-6">
+          <div className="text-center mb-12 reveal">
+            <span className="text-xs font-bold text-[#2563EB] tracking-wider uppercase mb-3 block">שאלות ותשובות</span>
+            <h2 className="text-2xl md:text-3xl font-extrabold text-[#0F172A]">כל מה שרצית לדעת</h2>
+          </div>
+          <div className="space-y-3">
+            {[
+              { q: 'מה הכמות המינימלית לייבוא?', a: 'אין כמות מינימלית קבועה – זה תלוי במוצר ובמפעל. בדרך כלל, ייבוא כלכלי מתחיל מהזמנות בשווי $2,000–$5,000. אנחנו נבדוק עבורך את סף הכדאיות בשיחת ההיתכנות החינמית.' },
+              { q: 'כמה זמן לוקח תהליך ייבוא שלם?', a: 'ייבוא ימי מאסיה לישראל לוקח בדרך כלל 25–40 ימים. ייבוא אווירי מהיר לוקח 5–10 ימים. אנחנו נמליץ לך על הדרך הנכונה בהתאם לדחיפות ולתקציב שלך.' },
+              { q: 'מה קורה אם המוצר לא מגיע בזמן או פגום?', a: 'אנחנו לוקחים אחריות מלאה. יש לנו ביטוח שילוח על כל משלוח, ואנחנו מפעילים בקרת איכות במפעל לפני שהסחורה יוצאת. במקרה של בעיה – אנחנו מטפלים בפיצוי מול הספק.' },
+              { q: 'איך אתם עובדים מול המכס בישראל?', a: 'יש לנו עמיל מכס מורשה שמטפל בכל הניירת, האישורים והשחרור בנמלים. אתה לא צריך להגיע לנמל, לדעת אנגלית או להבין בירוקרטיה מכסית – הכל נעשה עבורך.' },
+              { q: 'האם צריך לשלם מראש על השירות?', a: 'לא! שלב בדיקת ההיתכנות הוא חינמי לגמרי. אתה משלם לנו רק לאחר שמצאנו לך חיסכון משמעותי, אישרת את ההזמנה וכל התנאים סגורים ומוסכמים.' },
+              { q: 'עם אילו מדינות אתם עובדים?', a: 'בעיקר עם סין (SZX-HUB), טורקיה, הודו, ויאטנם וארה"ב. אנחנו מחוברים למאגר של מפעלים מאומתים ב-18 מדינות ייצור שונות.' }
+            ].map((faq, i) => (
+              <div key={i} className="reveal bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden">
+                <button
+                  onClick={() => setOpenFaq(openFaq === i ? null : i)}
+                  className="w-full flex items-center justify-between p-5 text-right font-bold text-[#0F172A] text-sm hover:bg-slate-50 transition-colors gap-4"
+                >
+                  <span>{faq.q}</span>
+                  <ChevronDown className={`w-4 h-4 text-slate-400 flex-shrink-0 transition-transform duration-200 ${openFaq === i ? 'rotate-180' : ''}`} />
+                </button>
+                {openFaq === i && (
+                  <div className="px-5 pb-5 text-slate-600 text-sm leading-relaxed text-right border-t border-slate-100 pt-4">
+                    {faq.a}
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* FLOATING WHATSAPP BUTTON */}
+      <a
+        href="https://wa.me/972500000000?text=%D7%94%D7%99%D7%99%2C%20%D7%A8%D7%95%D7%A6%D7%94%20%D7%9C%D7%A9%D7%9E%D7%95%D7%A2%20%D7%99%D7%95%D7%AA%D7%A8%20%D7%A2%D7%9C%20%D7%91%D7%93%D7%99%D7%A7%D7%AA%20%D7%A8%D7%95%D7%95%D7%97%D7%99%D7%95%D7%AA%20%D7%97%D7%99%D7%A0%D7%9D"
+        target="_blank"
+        rel="noopener noreferrer"
+        className="fixed bottom-6 left-6 z-50 w-14 h-14 bg-[#25D366] text-white rounded-full flex items-center justify-center shadow-2xl wa-pulse hover:scale-110 transition-transform duration-200"
+        title="שלח הודעת וואטסאפ"
+        aria-label="צור קשר בווטסאפ"
+      >
+        <svg viewBox="0 0 24 24" className="w-7 h-7" fill="currentColor">
+          <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+        </svg>
+      </a>
 
       {/* FOOTER */}
       <footer className="bg-[#090D16] text-slate-500 py-12 border-t border-slate-900">
