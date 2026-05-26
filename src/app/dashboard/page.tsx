@@ -29,29 +29,11 @@ export default function DashboardPage() {
   const currentUser = useCRMStore((state) => state.currentUser);
 
   // --- STATS CALCULATIONS ---
-  // --- ROLE FILTERED DATA ---
-  const visibleLeads = leads.filter(l => currentUser?.role !== 'agent' || l.assignedOwnerId === currentUser.id);
-  const visibleCustomers = customers.filter(c => {
-    if (currentUser?.role !== 'agent') return true;
-    const lead = leads.find(l => l.id === c.leadId);
-    return lead && lead.assignedOwnerId === currentUser.id;
-  });
-  const visibleTasks = tasks.filter(t => currentUser?.role !== 'agent' || t.assignedTo === currentUser.id);
-  const visibleActivities = activities.filter(a => {
-    if (currentUser?.role !== 'agent') return true;
-    if (a.leadId) {
-      const lead = leads.find(l => l.id === a.leadId);
-      return lead && lead.assignedOwnerId === currentUser.id;
-    }
-    if (a.customerId) {
-      const customer = customers.find(c => c.id === a.customerId);
-      if (customer) {
-        const lead = leads.find(l => l.id === customer.leadId);
-        return lead && lead.assignedOwnerId === currentUser.id;
-      }
-    }
-    return a.createdBy === currentUser.id;
-  });
+  // --- ROLE FILTERED DATA (Disabled: Everyone sees everything)
+  const visibleLeads = leads;
+  const visibleCustomers = customers;
+  const visibleTasks = tasks;
+  const visibleActivities = activities;
 
   // --- STATS CALCULATIONS ---
   const totalLeads = visibleLeads.length;

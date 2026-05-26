@@ -252,8 +252,8 @@ export default function LeadsPage() {
   // --- COMPUTED DATA ---
   const filteredLeads = useMemo(() => {
     return leads.filter((lead) => {
-      // Role Filter Check
-      const roleMatch = currentUser?.role !== 'agent' || lead.assignedOwnerId === currentUser.id;
+      // Role Filter Check (Disabled: Everyone sees everything)
+      const roleMatch = true;
       if (!roleMatch) return false;
 
       // Search Match

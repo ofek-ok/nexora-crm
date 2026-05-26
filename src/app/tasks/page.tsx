@@ -113,8 +113,8 @@ export default function TasksPage() {
   // --- FILTERED TASKS CALCULATIONS ---
   const filteredTasks = useMemo(() => {
     return tasks.filter((task) => {
-      // Role Filter Check
-      const roleMatch = currentUser?.role !== 'agent' || task.assignedTo === currentUser.id;
+      // Role Filter Check (Disabled: Everyone sees everything)
+      const roleMatch = true;
       if (!roleMatch) return false;
 
       // 1. Search Match

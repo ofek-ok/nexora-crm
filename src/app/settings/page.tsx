@@ -41,7 +41,7 @@ export default function SettingsPage() {
   // New user form state
   const [newUserEmail, setNewUserEmail] = useState('');
   const [newUserName, setNewUserName] = useState('');
-  const [newUserRole, setNewUserRole] = useState<'admin' | 'agent'>('agent');
+  const [newUserRole, setNewUserRole] = useState<'admin' | 'agent'>('admin');
 
   // Change Theme utility
   const handleThemeChange = (newTheme: 'light' | 'dark') => {
@@ -299,22 +299,9 @@ export default function SettingsPage() {
                     <h5 className="text-xs font-semibold text-text-primary truncate">{u.fullName}</h5>
                     <p className="text-[10px] text-text-secondary truncate">{u.email}</p>
                   </div>
-                  {currentUser?.role === 'admin' ? (
-                    <select
-                      value={u.role}
-                      onChange={(e) => handleUserRoleChange(u.id, e.target.value as 'admin' | 'agent')}
-                      className="text-[10px] bg-bg-tertiary border border-border-custom rounded-lg px-2 py-1.5 focus:outline-none focus:ring-1 focus:ring-brand-primary font-semibold text-text-primary cursor-pointer"
-                    >
-                      <option value="agent">{isRTL ? 'נציג' : 'Agent'}</option>
-                      <option value="admin">{isRTL ? 'מנהל' : 'Admin'}</option>
-                    </select>
-                  ) : (
-                    <span className={`text-[9px] font-bold uppercase px-2 py-0.5 rounded-full ${
-                      u.role === 'admin' ? 'bg-brand-primary-light text-brand-primary' : 'bg-bg-tertiary text-text-secondary'
-                    }`}>
-                      {u.role === 'admin' ? (isRTL ? 'מנהל' : 'Admin') : (isRTL ? 'נציג' : 'Agent')}
-                    </span>
-                  )}
+                  <span className="text-[9px] font-bold uppercase px-2 py-0.5 rounded-full bg-brand-primary-light text-brand-primary">
+                    {isRTL ? 'מנהל' : 'Admin'}
+                  </span>
                 </div>
               ))}
             </div>
@@ -343,18 +330,7 @@ export default function SettingsPage() {
                 />
               </div>
 
-              <div className="flex items-end justify-between gap-4">
-                <Select
-                  label={t('auth.role')}
-                  value={newUserRole}
-                  onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setNewUserRole(e.target.value as 'admin' | 'agent')}
-                  options={[
-                    { value: 'agent', label: 'Agent (נציג)' },
-                    { value: 'admin', label: 'Admin (מנהל)' }
-                  ]}
-                  containerClassName="max-w-xs"
-                />
-
+              <div className="flex items-end justify-end">
                 <Button type="submit" size="sm" className="mb-0.5" leftIcon={<Plus className="w-3.5 h-3.5" />}>
                   {t('common.add')}
                 </Button>

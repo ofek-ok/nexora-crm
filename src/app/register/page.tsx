@@ -21,7 +21,7 @@ export default function RegisterPage() {
 
   const [email, setEmail] = useState('');
   const [name, setName] = useState('');
-  const [role, setRole] = useState<'admin' | 'agent'>('agent');
+  const [role, setRole] = useState<'admin' | 'agent'>('admin');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -115,15 +115,7 @@ export default function RegisterPage() {
             required
           />
 
-          <Select
-            label={t('auth.role')}
-            value={role}
-            onChange={(e) => setRole(e.target.value as 'admin' | 'agent')}
-            options={[
-              { value: 'agent', label: 'Agent (נציג מכירות)' },
-              { value: 'admin', label: 'Admin (מנהל מערכת)' }
-            ]}
-          />
+
 
           <Input
             label={t('auth.password')}

@@ -59,9 +59,8 @@ export default function CustomersPage() {
   // Filtered List
   const filteredCustomers = useMemo(() => {
     return customers.filter((customer) => {
-      // Role Filter Check
-      const correspondingLead = leads.find(l => l.id === customer.leadId);
-      const roleMatch = currentUser?.role !== 'agent' || (correspondingLead && correspondingLead.assignedOwnerId === currentUser.id);
+      // Role Filter Check (Disabled: Everyone sees everything)
+      const roleMatch = true;
       if (!roleMatch) return false;
 
       const query = localSearch.toLowerCase();

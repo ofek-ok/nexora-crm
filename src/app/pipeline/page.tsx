@@ -98,8 +98,8 @@ export default function PipelinePage() {
     }
   };
 
-  // Pipeline overall summary
-  const visibleLeads = leads.filter(lead => currentUser?.role !== 'agent' || lead.assignedOwnerId === currentUser.id);
+  // Pipeline overall summary (Disabled: Everyone sees everything)
+  const visibleLeads = leads;
   const openLeads = visibleLeads.filter(l => l.statusId !== 's-5' && l.statusId !== 's-6');
   const totalPipelineValue = openLeads.reduce((sum, l) => sum + l.dealValue, 0);
 
