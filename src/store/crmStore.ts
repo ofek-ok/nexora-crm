@@ -459,18 +459,18 @@ export const useCRMStore = create<CRMState>((set, get) => {
   // Load initial state
   const defaultState = {
     currentUser: null,
-    users: DEFAULT_USERS,
+    users: isSupabaseConfigured ? [] : DEFAULT_USERS,
     isAuthenticated: false,
     language: 'en' as 'en' | 'he',
     theme: 'light' as 'light' | 'dark',
     searchQuery: '',
-    pipelineStatuses: DEFAULT_STATUSES,
-    leads: DEFAULT_LEADS,
-    customers: DEFAULT_CUSTOMERS,
-    tasks: DEFAULT_TASKS,
-    activities: DEFAULT_ACTIVITIES,
-    notes: DEFAULT_NOTES,
-    attachments: DEFAULT_ATTACHMENTS,
+    pipelineStatuses: isSupabaseConfigured ? [] : DEFAULT_STATUSES,
+    leads: isSupabaseConfigured ? [] : DEFAULT_LEADS,
+    customers: isSupabaseConfigured ? [] : DEFAULT_CUSTOMERS,
+    tasks: isSupabaseConfigured ? [] : DEFAULT_TASKS,
+    activities: isSupabaseConfigured ? [] : DEFAULT_ACTIVITIES,
+    notes: isSupabaseConfigured ? [] : DEFAULT_NOTES,
+    attachments: isSupabaseConfigured ? [] : DEFAULT_ATTACHMENTS,
     toasts: []
   };
 
