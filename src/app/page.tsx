@@ -194,6 +194,21 @@ export default function LandingPage() {
           50% { box-shadow: 0 0 0 10px rgba(37,211,102,0); }
         }
         .wa-pulse { animation: wa-pulse 2.5s infinite; }
+        /* Fade in and scale animations */
+        @keyframes fade-in {
+          from { opacity: 0; transform: translateY(-10px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in {
+          animation: fade-in 0.3s ease-out forwards;
+        }
+        @keyframes scale-in {
+          from { opacity: 0; transform: scale(0.95); }
+          to { opacity: 1; transform: scale(1); }
+        }
+        .animate-scale-in {
+          animation: scale-in 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+        }
       `}} />
 
       {/* HEADER / NAVIGATION */}
@@ -362,7 +377,7 @@ export default function LandingPage() {
 
           {/* Left Column - Shipping Map Illustration (5 cols on desktop) */}
           <div className="lg:col-span-5 relative w-full flex items-center justify-center min-h-[300px] lg:min-h-[400px]">
-            <div className="relative w-full max-w-lg aspect-square lg:aspect-auto rounded-3xl bg-slate-900/50 border border-slate-800/80 p-4 shadow-2xl backdrop-blur-md">
+            <div className="relative w-full max-w-lg aspect-[500/380] rounded-3xl bg-slate-900/50 border border-slate-800/80 p-4 shadow-2xl backdrop-blur-md">
               
               {/* Map Title Tag */}
               <div className="absolute top-4 right-4 bg-slate-950/80 border border-slate-800 rounded-lg px-2.5 py-1 text-[10px] text-slate-400 font-mono flex items-center gap-1.5">
@@ -535,12 +550,12 @@ export default function LandingPage() {
             </p>
             
             {/* interactive Supply Chain Leak Chart */}
-            <div className="my-10 p-6 rounded-2xl bg-white border border-slate-200/80 shadow-md">
+            <div className="my-10 p-4 sm:p-6 rounded-2xl bg-white border border-slate-200/80 shadow-md">
               <h3 className="text-sm font-bold text-[#0F172A] mb-5 text-center">כך דולף הכסף שלך בשרשרת התיווך הישראלית:</h3>
               <div className="space-y-4 max-w-xl mx-auto">
                 {/* Factory cost */}
                 <div className="relative">
-                  <div className="flex justify-between items-center text-xs font-semibold mb-1 text-slate-500">
+                  <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center text-xs font-semibold mb-1 text-slate-500 gap-1">
                     <span>מחיר במפעל בחו"ל</span>
                     <span>30% מעלות המוצר</span>
                   </div>
@@ -550,9 +565,9 @@ export default function LandingPage() {
                 </div>
                 {/* Middlemen fee */}
                 <div>
-                  <div className="flex justify-between items-center text-xs font-semibold mb-1 text-[#EF4444]">
+                  <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center text-xs font-semibold mb-1 text-[#EF4444] gap-1">
                     <span>קנס סיטונאים ומתווכים בארץ (משרדים, מנהלים, רווחי יבואן)</span>
-                    <span>+ 70% קנס תיווך!</span>
+                    <span className="font-bold">+ 70% קנס תיווך!</span>
                   </div>
                   <div className="w-full h-3 bg-slate-100 rounded-full overflow-hidden">
                     <div className="h-full bg-red-500 rounded-full" style={{ width: '100%' }} />
@@ -648,13 +663,13 @@ export default function LandingPage() {
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
             
             {/* Photo Column - Real partner photos */}
-            <div className="lg:col-span-5 order-2 lg:order-1 grid grid-cols-2 gap-4 w-full max-w-md mx-auto">
+            <div className="lg:col-span-5 order-2 lg:order-1 grid grid-cols-2 gap-3 sm:gap-4 w-full max-w-md mx-auto">
 
               {/* Partner 1: Shalev – gray background photo (right in RTL) */}
               <div className="relative rounded-2xl overflow-hidden border-2 border-slate-200/60 shadow-lg bg-white group hover:border-[#2563EB] hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
                 <div className="w-full aspect-[3/4] relative overflow-hidden">
                   <img
-                    src="/ofek.jpg"
+                    src="/shalev.jpg"
                     alt="שלו סגל – מייסד שותף ומנכ&quot;ל Nexora"
                     className="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-500"
                   />
@@ -673,7 +688,7 @@ export default function LandingPage() {
               <div className="relative rounded-2xl overflow-hidden border-2 border-slate-200/60 shadow-lg bg-white group hover:border-[#10B981] hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
                 <div className="w-full aspect-[3/4] relative overflow-hidden">
                   <img
-                    src="/shalev.jpg"
+                    src="/ofek.jpg"
                     alt="אופק אוקונסקי – מייסד שותף, סמנכ&quot;ל תפעול וטכנולוגיות Nexora"
                     className="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-500"
                   />
@@ -722,7 +737,7 @@ export default function LandingPage() {
         <div className="max-w-4xl mx-auto px-6">
           
           {/* Container with prominent glowing gradient border */}
-          <div className="bg-[#0F172A] text-white rounded-3xl p-8 md:p-12 relative overflow-hidden shadow-2xl border border-blue-500/25">
+          <div className="bg-[#0F172A] text-white rounded-3xl p-5 sm:p-8 md:p-12 relative overflow-hidden shadow-2xl border border-blue-500/25">
             <div className="absolute top-0 right-0 w-[300px] h-[300px] rounded-full bg-blue-500/5 blur-[80px] pointer-events-none" />
             
             <span className="text-xs font-mono text-[#3B82F6] font-bold block mb-4 tracking-widest text-right">דברו דוגרי, בלי סיפורים</span>
@@ -744,7 +759,7 @@ export default function LandingPage() {
             </div>
 
             {/* Zero Risk Box with Emerald highlights */}
-            <div className="p-6 rounded-2xl bg-slate-900/80 border border-slate-800 flex flex-col md:flex-row gap-4 items-start md:items-center text-right">
+            <div className="p-4 sm:p-6 rounded-2xl bg-slate-900/80 border border-slate-800 flex flex-col md:flex-row gap-4 items-start md:items-center text-right">
               <div className="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 flex-shrink-0">
                 <ShieldCheck className="w-6 h-6" />
               </div>
@@ -784,7 +799,7 @@ export default function LandingPage() {
               <span className="absolute right-0 top-0 translate-x-[calc(50%+1px)] md:translate-x-[calc(50%+1px)] w-8 h-8 md:w-10 md:h-10 rounded-full bg-white border-2 border-[#2563EB] flex items-center justify-center text-xs md:text-sm font-bold text-[#2563EB] shadow-md shadow-blue-500/10">
                 01
               </span>
-              <div className="pr-4 md:pr-6">
+              <div className="pr-6 md:pr-8">
                 <h3 className="text-base md:text-lg font-bold text-[#0F172A] mb-2">שלב 1: שיחת בדיקה (בחינם)</h3>
                 <p className="text-slate-600 text-xs md:text-sm leading-relaxed max-w-2xl">
                   אתה מראה לנו מה אתה קונֶה היום בארץ ובאיזה מחיר, ואנחנו בודקים לך תוך כמה ימים בכמה אפשר להביא את זה ישירות מחו"ל.
@@ -797,7 +812,7 @@ export default function LandingPage() {
               <span className="absolute right-0 top-0 translate-x-[calc(50%+1px)] w-8 h-8 md:w-10 md:h-10 rounded-full bg-white border-2 border-slate-300 flex items-center justify-center text-xs md:text-sm font-bold text-slate-500 shadow-md">
                 02
               </span>
-              <div className="pr-4 md:pr-6">
+              <div className="pr-6 md:pr-8">
                 <h3 className="text-base md:text-lg font-bold text-[#0F172A] mb-2">שלב 2: איתור המפעל וסגירת המחיר</h3>
                 <p className="text-slate-600 text-xs md:text-sm leading-relaxed max-w-2xl">
                   אנחנו מוצאים את המפעל האמין ביותר בחו"ל, סוגרים את מחיר הרכש הנמוך ביותר ומפיקים את כל אישורי הייבוא הנדרשים.
@@ -810,7 +825,7 @@ export default function LandingPage() {
               <span className="absolute right-0 top-0 translate-x-[calc(50%+1px)] w-8 h-8 md:w-10 md:h-10 rounded-full bg-white border-2 border-slate-300 flex items-center justify-center text-xs md:text-sm font-bold text-slate-500 shadow-md">
                 03
               </span>
-              <div className="pr-4 md:pr-6">
+              <div className="pr-6 md:pr-8">
                 <h3 className="text-base md:text-lg font-bold text-[#0F172A] mb-2">שלב 3: הובלה ושחרור מהמכס</h3>
                 <p className="text-slate-600 text-xs md:text-sm leading-relaxed max-w-2xl">
                   אנחנו מעלים את הסחורה לים או לאוויר, ומטפלים בכל הבירוקרטיה, הניירות והשחרור בנמלים בישראל.
@@ -823,7 +838,7 @@ export default function LandingPage() {
               <span className="absolute right-0 top-0 translate-x-[calc(50%+1px)] w-8 h-8 md:w-10 md:h-10 rounded-full bg-white border-2 border-[#10B981] flex items-center justify-center text-xs md:text-sm font-bold text-[#10B981] shadow-md shadow-emerald-500/10">
                 04
               </span>
-              <div className="pr-4 md:pr-6">
+              <div className="pr-6 md:pr-8">
                 <h3 className="text-base md:text-lg font-bold text-[#10B981] mb-2">שלב 4: פריקה אצלך בעסק</h3>
                 <p className="text-slate-600 text-xs md:text-sm leading-relaxed max-w-2xl">
                   משאית מגיעה ופורקת את המוצרים אצלך במחסן. אתה חותם, מתחיל למכור ומרוויח פי 2.
@@ -845,7 +860,7 @@ export default function LandingPage() {
 
         <div className="max-w-3xl mx-auto px-6 relative z-10">
           
-          <div className="bg-[#1E293B] border border-slate-800 rounded-3xl p-8 md:p-12 shadow-2xl relative">
+          <div className="bg-[#1E293B] border border-slate-800 rounded-3xl p-5 sm:p-8 md:p-12 shadow-2xl relative">
             
             {/* Header copy */}
             <div className="text-center mb-8">
