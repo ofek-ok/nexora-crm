@@ -455,7 +455,7 @@ export const useCRMStore = create<CRMState>((set, get) => {
     currentUser: DEFAULT_USERS[0],
     users: DEFAULT_USERS,
     isAuthenticated: true,
-    language: 'he' as 'en' | 'he',
+    language: 'en' as 'en' | 'he',
     theme: 'light' as 'light' | 'dark',
     searchQuery: '',
     pipelineStatuses: DEFAULT_STATUSES,
@@ -469,7 +469,7 @@ export const useCRMStore = create<CRMState>((set, get) => {
   };
 
   const savedState = loadSavedState();
-  const initialState = savedState ? { ...defaultState, ...savedState } : defaultState;
+  const initialState = savedState ? { ...defaultState, ...savedState, language: 'en' as const } : defaultState;
 
   return {
     ...initialState,

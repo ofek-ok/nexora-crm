@@ -224,15 +224,7 @@ export default function Navbar({ onMenuToggle }: NavbarProps) {
 
       {/* Action Controls */}
       <div className="flex items-center gap-2">
-        {/* Language Toggler */}
-        <button
-          onClick={toggleLanguage}
-          className="p-2.5 rounded-xl hover:bg-bg-tertiary text-text-secondary hover:text-text-primary transition-colors cursor-pointer flex items-center gap-1.5"
-          title={language === 'he' ? 'English LTR' : 'Hebrew RTL'}
-        >
-          <Globe className="w-4 h-4" />
-          <span className="text-xs font-semibold uppercase">{language === 'he' ? 'EN' : 'עב'}</span>
-        </button>
+
 
         {/* Theme Toggler */}
         <button

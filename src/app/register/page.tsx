@@ -67,13 +67,7 @@ export default function RegisterPage() {
     <div className="w-full max-w-md" dir={dir}>
       {/* Header utility actions */}
       <div className="flex justify-end items-center gap-2 mb-4">
-        <button
-          onClick={toggleLanguage}
-          className="p-2 rounded-xl hover:bg-bg-tertiary text-text-secondary hover:text-text-primary transition-colors cursor-pointer flex items-center gap-1.5"
-        >
-          <Globe className="w-4 h-4" />
-          <span className="text-xs font-semibold uppercase">{language === 'he' ? 'EN' : 'עב'}</span>
-        </button>
+
 
         <button
           onClick={toggleTheme}
