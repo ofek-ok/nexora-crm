@@ -60,7 +60,7 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
             <img 
               src="/logo.png" 
               alt="Nexora CRM" 
-              className="h-7 w-auto object-contain dark:brightness-110" 
+              className="h-9 w-auto object-contain dark:brightness-110" 
             />
           </Link>
           <button 

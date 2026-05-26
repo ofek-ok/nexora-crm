@@ -79,7 +79,7 @@ export default function LoginPage() {
             <img 
               src="/logo.png" 
               alt="Nexora CRM" 
-              className="h-10 w-auto object-contain dark:brightness-110" 
+              className="h-16 w-auto object-contain dark:brightness-110" 
             />
           </div>
           <p className="text-sm text-text-secondary mt-1.5">
