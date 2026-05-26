@@ -35,6 +35,8 @@ export default function SettingsPage() {
   const users = useCRMStore((state) => state.users);
   const login = useCRMStore((state) => state.login);
   const addToast = useCRMStore((state) => state.addToast);
+  const currentUser = useCRMStore((state) => state.currentUser);
+  const updateUserRole = useCRMStore((state) => state.updateUserRole);
 
   // New user form state
   const [newUserEmail, setNewUserEmail] = useState('');
@@ -91,6 +93,17 @@ export default function SettingsPage() {
     setNewUserEmail('');
     setNewUserName('');
     addToast(isRTL ? 'משתמש נוסף בהצלחה' : 'User added successfully', 'success');
+  };
+
+  // Change user role
+  const handleUserRoleChange = async (userId: string, newRole: 'admin' | 'agent') => {
+    try {
+      await updateUserRole(userId, newRole);
+      addToast(isRTL ? 'תפקיד המשתמש עודכן בהצלחה' : 'User role updated successfully', 'success');
+    } catch (e) {
+      console.error(e);
+      addToast(isRTL ? 'שגיאה בעדכון התפקיד' : 'Error updating user role', 'error');
+    }
   };
 
   return (
@@ -282,15 +295,26 @@ export default function SettingsPage() {
                   <div className="w-9 h-9 rounded-xl bg-brand-primary-light text-brand-primary flex items-center justify-center font-bold text-xs uppercase">
                     {u.fullName.charAt(0)}
                   </div>
-                  <div className="overflow-hidden">
+                  <div className="overflow-hidden flex-1">
                     <h5 className="text-xs font-semibold text-text-primary truncate">{u.fullName}</h5>
                     <p className="text-[10px] text-text-secondary truncate">{u.email}</p>
                   </div>
-                  <span className={`ms-auto text-[9px] font-bold uppercase px-2 py-0.5 rounded-full ${
-                    u.role === 'admin' ? 'bg-brand-primary-light text-brand-primary' : 'bg-bg-tertiary text-text-secondary'
-                  }`}>
-                    {u.role}
-                  </span>
+                  {currentUser?.role === 'admin' && currentUser.id !== u.id ? (
+                    <select
+                      value={u.role}
+                      onChange={(e) => handleUserRoleChange(u.id, e.target.value as 'admin' | 'agent')}
+                      className="text-[10px] bg-bg-tertiary border border-border-custom rounded-lg px-2 py-1.5 focus:outline-none focus:ring-1 focus:ring-brand-primary font-semibold text-text-primary cursor-pointer"
+                    >
+                      <option value="agent">{isRTL ? 'נציג' : 'Agent'}</option>
+                      <option value="admin">{isRTL ? 'מנהל' : 'Admin'}</option>
+                    </select>
+                  ) : (
+                    <span className={`text-[9px] font-bold uppercase px-2 py-0.5 rounded-full ${
+                      u.role === 'admin' ? 'bg-brand-primary-light text-brand-primary' : 'bg-bg-tertiary text-text-secondary'
+                    }`}>
+                      {u.role === 'admin' ? (isRTL ? 'מנהל' : 'Admin') : (isRTL ? 'נציג' : 'Agent')}
+                    </span>
+                  )}
                 </div>
               ))}
             </div>

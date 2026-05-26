@@ -132,6 +132,7 @@ interface CRMState {
   login: (email: string, fullName: string, role: UserRole) => Promise<boolean>;
   register: (email: string, fullName: string, role: UserRole) => Promise<boolean>;
   logout: () => void;
+  updateUserRole: (id: string, role: UserRole) => Promise<void>;
   
   // Lead Actions
   addLead: (lead: Omit<Lead, 'id' | 'createdAt' | 'lastActivityDate' | 'notesCount'>) => Promise<void>;
@@ -743,6 +744,25 @@ export const useCRMStore = create<CRMState>((set, get) => {
     logout: () => {
       set({ currentUser: null, isAuthenticated: false });
       saveState(get());
+    },
+    updateUserRole: async (id, role) => {
+      set(state => ({
+        users: state.users.map(u => u.id === id ? { ...u, role } : u),
+        currentUser: state.currentUser?.id === id ? { ...state.currentUser, role } : state.currentUser
+      }));
+      saveState(get());
+
+      if (isSupabaseConfigured && supabase) {
+        try {
+          const { error } = await supabase
+            .from('users')
+            .update({ role })
+            .eq('id', id);
+          if (error) throw error;
+        } catch (e) {
+          console.error('Supabase updateUserRole error:', e);
+        }
+      }
     },
 
     // Lead Actions
