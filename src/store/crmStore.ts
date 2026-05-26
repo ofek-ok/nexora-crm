@@ -557,9 +557,32 @@ export const useCRMStore = create<CRMState>((set, get) => {
           throw new Error('Supabase request failed');
         }
 
+        let finalStatuses = (psData || []).map(s => ({ id: s.id, nameEn: s.name_en, nameHe: s.name_he, color: s.color, orderIndex: s.order_index }));
+
+        if (finalStatuses.length === 0) {
+          try {
+            const { data: seeded, error: seedErr } = await supabase
+              .from('pipeline_statuses')
+              .insert(DEFAULT_STATUSES.map(s => ({
+                id: s.id,
+                name_en: s.nameEn,
+                name_he: s.nameHe,
+                color: s.color,
+                order_index: s.orderIndex
+              })))
+              .select();
+
+            if (!seedErr && seeded) {
+              finalStatuses = seeded.map(s => ({ id: s.id, nameEn: s.name_en, nameHe: s.name_he, color: s.color, orderIndex: s.order_index }));
+            }
+          } catch (seedError) {
+            console.error('Auto-seeding pipeline statuses failed:', seedError);
+          }
+        }
+
         set({
           users: (uData || []).map(u => ({ id: u.id, email: u.email, fullName: u.full_name, role: u.role, avatarUrl: u.avatar_url })),
-          pipelineStatuses: (psData || []).map(s => ({ id: s.id, nameEn: s.name_en, nameHe: s.name_he, color: s.color, orderIndex: s.order_index })),
+          pipelineStatuses: finalStatuses,
           leads: (lData || []).map(l => ({
             id: l.id,
             companyName: l.company_name,

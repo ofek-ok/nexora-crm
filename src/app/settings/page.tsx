@@ -6,6 +6,7 @@ import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Select } from '@/components/ui/Select';
+import { Modal } from '@/components/ui/Modal';
 import { 
   Globe, 
   Sun, 
@@ -37,11 +38,18 @@ export default function SettingsPage() {
   const addToast = useCRMStore((state) => state.addToast);
   const currentUser = useCRMStore((state) => state.currentUser);
   const updateUserRole = useCRMStore((state) => state.updateUserRole);
+  const addStatus = useCRMStore((state) => state.addStatus);
 
   // New user form state
   const [newUserEmail, setNewUserEmail] = useState('');
   const [newUserName, setNewUserName] = useState('');
   const [newUserRole, setNewUserRole] = useState<'admin' | 'agent'>('admin');
+
+  // New stage form state
+  const [isAddStageOpen, setIsAddStageOpen] = useState(false);
+  const [stageNameEn, setStageNameEn] = useState('');
+  const [stageNameHe, setStageNameHe] = useState('');
+  const [stageColor, setStageColor] = useState('#2563EB');
 
   // Change Theme utility
   const handleThemeChange = (newTheme: 'light' | 'dark') => {
@@ -103,6 +111,34 @@ export default function SettingsPage() {
     } catch (e) {
       console.error(e);
       addToast(isRTL ? 'שגיאה בעדכון התפקיד' : 'Error updating user role', 'error');
+    }
+  };
+
+  // Add new pipeline stage
+  const handleCreateStage = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!stageNameEn || !stageNameHe) {
+      addToast(isRTL ? 'נא למלא את שם השלב בשתי השפות' : 'Please provide stage names in both languages', 'error');
+      return;
+    }
+
+    const orderIndex = statuses.length;
+    try {
+      await addStatus({
+        nameEn: stageNameEn,
+        nameHe: stageNameHe,
+        color: stageColor,
+        orderIndex
+      });
+
+      setStageNameEn('');
+      setStageNameHe('');
+      setStageColor('#2563EB');
+      setIsAddStageOpen(false);
+      addToast(isRTL ? 'שלב מכירות חדש נוסף' : 'New sales stage added', 'success');
+    } catch (err) {
+      console.error(err);
+      addToast(isRTL ? 'שגיאה בהוספת השלב' : 'Error adding sales stage', 'error');
     }
   };
 
@@ -223,9 +259,19 @@ export default function SettingsPage() {
           
           {/* Pipeline Config stage list */}
           <Card>
-            <h4 className="font-semibold font-display text-text-primary text-sm border-b border-border-custom pb-3.5 mb-4 flex items-center gap-1.5">
-              <SettingsIcon className="w-4 h-4 text-brand-primary" /> {t('settings.pipelineConfig')}
-            </h4>
+            <div className="border-b border-border-custom pb-3.5 mb-4 flex items-center justify-between">
+              <h4 className="font-semibold font-display text-text-primary text-sm flex items-center gap-1.5">
+                <SettingsIcon className="w-4 h-4 text-brand-primary" /> {t('settings.pipelineConfig')}
+              </h4>
+              <Button
+                variant="outline"
+                size="sm"
+                leftIcon={<Plus className="w-3 h-3" />}
+                onClick={() => setIsAddStageOpen(true)}
+              >
+                {isRTL ? 'הוסף שלב' : 'Add Stage'}
+              </Button>
+            </div>
 
             <div className="space-y-2">
               {statuses.map((status, index) => (
@@ -341,6 +387,48 @@ export default function SettingsPage() {
         </div>
 
       </div>
+      {/* Add Stage Modal */}
+      <Modal isOpen={isAddStageOpen} onClose={() => setIsAddStageOpen(false)} title={isRTL ? 'הוסף שלב מכירות חדש' : 'Add New Sales Stage'}>
+        <form onSubmit={handleCreateStage} className="space-y-4">
+          <Input
+            label={isRTL ? 'שם השלב באנגלית' : 'Stage Name (English)'}
+            value={stageNameEn}
+            onChange={(e) => setStageNameEn(e.target.value)}
+            required
+            placeholder="e.g. Qualified Lead"
+          />
+          <Input
+            label={isRTL ? 'שם השלב בעברית' : 'Stage Name (Hebrew)'}
+            value={stageNameHe}
+            onChange={(e) => setStageNameHe(e.target.value)}
+            required
+            placeholder="לדוגמה: לידים מתאימים"
+          />
+          <div className="space-y-1.5">
+            <label className="text-xs font-semibold text-text-secondary uppercase tracking-wider block">
+              {isRTL ? 'צבע השלב' : 'Stage Color'}
+            </label>
+            <div className="flex items-center gap-3">
+              <input
+                type="color"
+                value={stageColor}
+                onChange={(e) => setStageColor(e.target.value)}
+                className="w-10 h-10 p-0 border border-border-custom rounded-xl cursor-pointer"
+              />
+              <span className="text-sm font-mono text-text-secondary">{stageColor}</span>
+            </div>
+          </div>
+          <div className="flex justify-end gap-2 pt-2">
+            <Button variant="outline" type="button" onClick={() => setIsAddStageOpen(false)}>
+              {t('common.cancel')}
+            </Button>
+            <Button type="submit">
+              {t('common.save')}
+            </Button>
+          </div>
+        </form>
+      </Modal>
+
     </div>
   );
 }
