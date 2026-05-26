@@ -299,7 +299,7 @@ export default function SettingsPage() {
                     <h5 className="text-xs font-semibold text-text-primary truncate">{u.fullName}</h5>
                     <p className="text-[10px] text-text-secondary truncate">{u.email}</p>
                   </div>
-                  {currentUser?.role === 'admin' && currentUser.id !== u.id ? (
+                  {currentUser?.role === 'admin' ? (
                     <select
                       value={u.role}
                       onChange={(e) => handleUserRoleChange(u.id, e.target.value as 'admin' | 'agent')}
