@@ -5,6 +5,11 @@ import ClientLayoutWrapper from "@/components/ClientLayoutWrapper";
 export const metadata: Metadata = {
   title: "Nexora CRM - Enterprise Sales & Customer Management",
   description: "Modern, responsive, bilingual CRM system tailored for fast-paced workflows.",
+  icons: {
+    icon: "/logo.png",
+    shortcut: "/logo.png",
+    apple: "/logo.png",
+  }
 };
 
 export default function RootLayout({
