@@ -129,8 +129,8 @@ interface CRMState {
   fetchData: () => Promise<void>;
   
   // Auth Actions
-  login: (email: string, fullName: string, role: UserRole) => boolean;
-  register: (email: string, fullName: string, role: UserRole) => boolean;
+  login: (email: string, fullName: string, role: UserRole) => Promise<boolean>;
+  register: (email: string, fullName: string, role: UserRole) => Promise<boolean>;
   logout: () => void;
   
   // Lead Actions
@@ -602,7 +602,67 @@ export const useCRMStore = create<CRMState>((set, get) => {
     },
 
     // Auth actions
-    login: (email, fullName, role) => {
+    login: async (email, fullName, role) => {
+      if (isSupabaseConfigured && supabase) {
+        try {
+          const { data: match, error } = await supabase
+            .from('users')
+            .select('*')
+            .eq('email', email.toLowerCase())
+            .maybeSingle();
+
+          if (error) throw error;
+
+          if (match) {
+            const mappedUser: User = {
+              id: match.id,
+              email: match.email,
+              fullName: match.full_name,
+              role: match.role as UserRole,
+              avatarUrl: match.avatar_url || undefined
+            };
+            set({ currentUser: mappedUser, isAuthenticated: true });
+            saveState(get());
+            return true;
+          }
+
+          // If user does not exist in Supabase, create them (auto-register on login for mock fallback convenience)
+          const { data: newUser, error: insertError } = await supabase
+            .from('users')
+            .insert({
+              email: email.toLowerCase(),
+              full_name: fullName,
+              role: role
+            })
+            .select()
+            .single();
+
+          if (insertError) throw insertError;
+
+          if (newUser) {
+            const mappedUser: User = {
+              id: newUser.id,
+              email: newUser.email,
+              fullName: newUser.full_name,
+              role: newUser.role as UserRole,
+              avatarUrl: newUser.avatar_url || undefined
+            };
+            set(state => ({
+              users: [...state.users, mappedUser],
+              currentUser: mappedUser,
+              isAuthenticated: true
+            }));
+            saveState(get());
+            return true;
+          }
+          return false;
+        } catch (e) {
+          console.error('Supabase login/auto-register error:', e);
+          return false;
+        }
+      }
+
+      // Local mock fallback
       const match = get().users.find(u => u.email.toLowerCase() === email.toLowerCase());
       if (match) {
         set({ currentUser: match, isAuthenticated: true });
@@ -624,7 +684,54 @@ export const useCRMStore = create<CRMState>((set, get) => {
       saveState(get());
       return true;
     },
-    register: (email, fullName, role) => {
+    register: async (email, fullName, role) => {
+      if (isSupabaseConfigured && supabase) {
+        try {
+          const { data: exists, error: checkError } = await supabase
+            .from('users')
+            .select('*')
+            .eq('email', email.toLowerCase())
+            .maybeSingle();
+
+          if (checkError) throw checkError;
+          if (exists) return false;
+
+          const { data: newUser, error: insertError } = await supabase
+            .from('users')
+            .insert({
+              email: email.toLowerCase(),
+              full_name: fullName,
+              role: role
+            })
+            .select()
+            .single();
+
+          if (insertError) throw insertError;
+
+          if (newUser) {
+            const mappedUser: User = {
+              id: newUser.id,
+              email: newUser.email,
+              fullName: newUser.full_name,
+              role: newUser.role as UserRole,
+              avatarUrl: newUser.avatar_url || undefined
+            };
+            set(state => ({
+              users: [...state.users, mappedUser],
+              currentUser: mappedUser,
+              isAuthenticated: true
+            }));
+            saveState(get());
+            return true;
+          }
+          return false;
+        } catch (e) {
+          console.error('Supabase register error:', e);
+          return false;
+        }
+      }
+
+      // Local mock fallback
       const exists = get().users.some(u => u.email.toLowerCase() === email.toLowerCase());
       if (exists) return false;
 

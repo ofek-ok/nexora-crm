@@ -18,6 +18,8 @@ export default function ClientLayoutWrapper({ children }: { children: React.Reac
   const router = useRouter();
 
   const isAuthPage = pathname === '/login' || pathname === '/register' || pathname === '/forgot-password';
+  const isLandingPage = pathname === '/';
+  const isPublicPage = isAuthPage || isLandingPage;
 
   // Apply theme class on initial mount and when theme changes
   useEffect(() => {
@@ -32,12 +34,12 @@ export default function ClientLayoutWrapper({ children }: { children: React.Reac
 
   // Auth Guard
   useEffect(() => {
-    if (!isAuthenticated && !isAuthPage) {
+    if (!isAuthenticated && !isPublicPage) {
       router.replace('/login');
     } else if (isAuthenticated && isAuthPage) {
       router.replace('/dashboard');
     }
-  }, [isAuthenticated, isAuthPage, router]);
+  }, [isAuthenticated, isPublicPage, isAuthPage, router]);
 
   // If loading or state mismatch, wait (prevents flash of content)
   const [mounted, setMounted] = useState(false);
@@ -54,10 +56,10 @@ export default function ClientLayoutWrapper({ children }: { children: React.Reac
     );
   }
 
-  // Render auth pages directly (without sidebar/navbar)
-  if (isAuthPage || !isAuthenticated) {
+  // Render public pages or unauthenticated layouts directly (without CRM sidebar/navbar)
+  if (isLandingPage || isAuthPage || !isAuthenticated) {
     return (
-      <main className="min-h-screen bg-bg-primary flex flex-col justify-center items-center p-4">
+      <main className={`min-h-screen bg-bg-primary flex flex-col ${isLandingPage ? '' : 'justify-center items-center p-4'}`}>
         {children}
         <ToastContainer />
       </main>

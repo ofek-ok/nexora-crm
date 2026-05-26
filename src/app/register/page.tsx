@@ -38,7 +38,7 @@ export default function RegisterPage() {
     }
   };
 
-  const handleRegister = (e: React.FormEvent) => {
+  const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email || !name || !password || !confirmPassword) {
       addToast(language === 'he' ? 'נא למלא את כל השדות' : 'Please fill in all fields', 'error');
@@ -51,16 +51,20 @@ export default function RegisterPage() {
     }
 
     setIsLoading(true);
-    setTimeout(() => {
-      const success = register(email, name, role);
-      setIsLoading(false);
+    try {
+      const success = await register(email, name, role);
       if (success) {
         addToast(t('auth.registerSuccess'), 'success');
         router.push('/dashboard');
       } else {
         addToast(language === 'he' ? 'דוא"ל זה כבר קיים במערכת' : 'Email already exists', 'error');
       }
-    }, 800);
+    } catch (err) {
+      console.error(err);
+      addToast(language === 'he' ? 'שגיאה לא צפויה' : 'An unexpected error occurred', 'error');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (

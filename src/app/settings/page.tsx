@@ -82,12 +82,12 @@ export default function SettingsPage() {
   };
 
   // Add simulated user
-  const handleAddUser = (e: React.FormEvent) => {
+  const handleAddUser = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newUserEmail || !newUserName) return;
 
     // Use login action internally to register user
-    login(newUserEmail, newUserName, newUserRole);
+    await login(newUserEmail, newUserName, newUserRole);
     setNewUserEmail('');
     setNewUserName('');
     addToast(isRTL ? 'משתמש נוסף בהצלחה' : 'User added successfully', 'success');

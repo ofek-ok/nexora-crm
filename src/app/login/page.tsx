@@ -35,7 +35,7 @@ export default function LoginPage() {
     }
   };
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email || !password) {
       addToast(t('auth.loginSuccess') ? 'Please fill in all fields' : 'נא למלא את כל השדות', 'error');
@@ -43,13 +43,19 @@ export default function LoginPage() {
     }
 
     setIsLoading(true);
-    setTimeout(() => {
-      const success = login(email, name || 'Demo User', role);
-      setIsLoading(false);
+    try {
+      const success = await login(email, name || 'Demo User', role);
       if (success) {
         addToast(t('auth.loginSuccess'), 'success');
+      } else {
+        addToast(language === 'he' ? 'שגיאה בהתחברות' : 'Failed to login', 'error');
       }
-    }, 800);
+    } catch (err) {
+      console.error(err);
+      addToast(language === 'he' ? 'שגיאה לא צפויה' : 'An unexpected error occurred', 'error');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
