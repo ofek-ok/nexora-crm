@@ -475,7 +475,33 @@ export const useCRMStore = create<CRMState>((set, get) => {
   };
 
   const savedState = loadSavedState();
+
+  // If Supabase is configured, check if savedState contains mock data and clear it to prevent mock users showing up
+  if (isSupabaseConfigured && savedState) {
+    const hasMockData = savedState.users?.some((u: any) => u.id && !isUUID(u.id));
+    if (hasMockData) {
+      if (typeof window !== 'undefined') {
+        try {
+          localStorage.removeItem(STORAGE_KEY);
+        } catch (e) {
+          console.error(e);
+        }
+      }
+    }
+  }
+
   const initialState = savedState ? { ...defaultState, ...savedState, language: 'en' as const } : defaultState;
+
+  if (isSupabaseConfigured) {
+    initialState.users = [];
+    initialState.pipelineStatuses = [];
+    initialState.leads = [];
+    initialState.customers = [];
+    initialState.tasks = [];
+    initialState.activities = [];
+    initialState.notes = [];
+    initialState.attachments = [];
+  }
 
   return {
     ...initialState,
@@ -1310,19 +1336,36 @@ export const useCRMStore = create<CRMState>((set, get) => {
 
     // Reset Data Helper
     resetToMockData: () => {
-      set({
-        currentUser: DEFAULT_USERS[0],
-        users: DEFAULT_USERS,
-        isAuthenticated: true,
-        pipelineStatuses: DEFAULT_STATUSES,
-        leads: DEFAULT_LEADS,
-        customers: DEFAULT_CUSTOMERS,
-        tasks: DEFAULT_TASKS,
-        activities: DEFAULT_ACTIVITIES,
-        notes: DEFAULT_NOTES,
-        attachments: DEFAULT_ATTACHMENTS
-      });
-      saveState(get());
+      if (isSupabaseConfigured) {
+        set({
+          currentUser: get().currentUser,
+          users: [],
+          isAuthenticated: get().isAuthenticated,
+          pipelineStatuses: [],
+          leads: [],
+          customers: [],
+          tasks: [],
+          activities: [],
+          notes: [],
+          attachments: []
+        });
+        saveState(get());
+        get().fetchData();
+      } else {
+        set({
+          currentUser: DEFAULT_USERS[0],
+          users: DEFAULT_USERS,
+          isAuthenticated: true,
+          pipelineStatuses: DEFAULT_STATUSES,
+          leads: DEFAULT_LEADS,
+          customers: DEFAULT_CUSTOMERS,
+          tasks: DEFAULT_TASKS,
+          activities: DEFAULT_ACTIVITIES,
+          notes: DEFAULT_NOTES,
+          attachments: DEFAULT_ATTACHMENTS
+        });
+        saveState(get());
+      }
     }
   };
 });
