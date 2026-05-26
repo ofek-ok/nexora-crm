@@ -24,6 +24,7 @@ export default function PipelinePage() {
 
   const leads = useCRMStore((state) => state.leads);
   const statuses = useCRMStore((state) => state.pipelineStatuses);
+  const currentUser = useCRMStore((state) => state.currentUser);
   const updateLead = useCRMStore((state) => state.updateLead);
   const addStatus = useCRMStore((state) => state.addStatus);
   const deleteStatus = useCRMStore((state) => state.deleteStatus);
@@ -98,7 +99,8 @@ export default function PipelinePage() {
   };
 
   // Pipeline overall summary
-  const openLeads = leads.filter(l => l.statusId !== 's-5' && l.statusId !== 's-6');
+  const visibleLeads = leads.filter(lead => currentUser?.role !== 'agent' || lead.assignedOwnerId === currentUser.id);
+  const openLeads = visibleLeads.filter(l => l.statusId !== 's-5' && l.statusId !== 's-6');
   const totalPipelineValue = openLeads.reduce((sum, l) => sum + l.dealValue, 0);
 
   return (
@@ -176,7 +178,7 @@ export default function PipelinePage() {
       {/* Kanban Scroll Board */}
       <div className="flex gap-4 overflow-x-auto pb-4 pt-1 select-none">
         {statuses.map((status) => {
-          const colLeads = leads.filter(l => l.statusId === status.id);
+          const colLeads = visibleLeads.filter(l => l.statusId === status.id);
           const colValue = colLeads.reduce((sum, l) => sum + l.dealValue, 0);
           
           const isOver = draggedOverColId === status.id;

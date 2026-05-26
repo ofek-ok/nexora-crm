@@ -28,6 +28,9 @@ export default function CustomersPage() {
   const isRTL = language === 'he';
 
   const customers = useCRMStore((state) => state.customers);
+  const leads = useCRMStore((state) => state.leads);
+  const currentUser = useCRMStore((state) => state.currentUser);
+  const users = useCRMStore((state) => state.users);
   const deleteCustomer = useCRMStore((state) => state.deleteCustomer);
   const addToast = useCRMStore((state) => state.addToast);
   
@@ -56,6 +59,11 @@ export default function CustomersPage() {
   // Filtered List
   const filteredCustomers = useMemo(() => {
     return customers.filter((customer) => {
+      // Role Filter Check
+      const correspondingLead = leads.find(l => l.id === customer.leadId);
+      const roleMatch = currentUser?.role !== 'agent' || (correspondingLead && correspondingLead.assignedOwnerId === currentUser.id);
+      if (!roleMatch) return false;
+
       const query = localSearch.toLowerCase();
       return (
         localSearch === '' ||
@@ -66,7 +74,7 @@ export default function CustomersPage() {
         customer.industry.toLowerCase().includes(query)
       );
     });
-  }, [customers, localSearch]);
+  }, [customers, localSearch, leads, currentUser]);
 
   const handleDelete = (id: string, name: string) => {
     if (confirm(isRTL ? `למחוק את הלקוח "${name}"? פעולה זו תסיר את היסטוריית הפעילות שלו.` : `Delete customer "${name}"? This removes all details.`)) {
@@ -360,20 +368,26 @@ export default function CustomersPage() {
               </form>
 
               <ul className="space-y-2 max-h-[120px] overflow-y-auto">
-                {customerNotes.map(n => (
-                  <li key={n.id} className="p-2.5 border border-border-custom bg-bg-tertiary/20 rounded-xl relative group text-xs">
-                    <p className="text-text-primary">{n.content}</p>
-                    <div className="flex items-center justify-between mt-2 text-[9px] text-text-tertiary">
-                      <span>{new Date(n.createdAt).toLocaleDateString()}</span>
-                      <button 
-                        onClick={() => deleteNote(n.id)}
-                        className="text-brand-danger opacity-0 group-hover:opacity-100 hover:underline cursor-pointer"
-                      >
-                        {t('common.delete')}
-                      </button>
-                    </div>
-                  </li>
-                ))}
+                {customerNotes.map(n => {
+                  const creator = users.find(u => u.id === n.createdBy);
+                  return (
+                    <li key={n.id} className="p-2.5 border border-border-custom bg-bg-tertiary/20 rounded-xl relative group text-xs">
+                      <p className="text-text-primary">{n.content}</p>
+                      <div className="flex items-center justify-between mt-2 text-[9px] text-text-tertiary">
+                        <span className="flex items-center gap-1.5">
+                          <span>{new Date(n.createdAt).toLocaleDateString()}</span>
+                          {creator && <span className="font-semibold text-brand-primary">by {creator.fullName}</span>}
+                        </span>
+                        <button 
+                          onClick={() => deleteNote(n.id)}
+                          className="text-brand-danger opacity-0 group-hover:opacity-100 hover:underline cursor-pointer"
+                        >
+                          {t('common.delete')}
+                        </button>
+                      </div>
+                    </li>
+                  );
+                })}
               </ul>
             </div>
 

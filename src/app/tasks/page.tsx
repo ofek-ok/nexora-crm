@@ -30,6 +30,7 @@ export default function TasksPage() {
   const leads = useCRMStore((state) => state.leads);
   const customers = useCRMStore((state) => state.customers);
   const users = useCRMStore((state) => state.users);
+  const currentUser = useCRMStore((state) => state.currentUser);
   
   const addTask = useCRMStore((state) => state.addTask);
   const toggleTaskStatus = useCRMStore((state) => state.toggleTaskStatus);
@@ -112,6 +113,10 @@ export default function TasksPage() {
   // --- FILTERED TASKS CALCULATIONS ---
   const filteredTasks = useMemo(() => {
     return tasks.filter((task) => {
+      // Role Filter Check
+      const roleMatch = currentUser?.role !== 'agent' || task.assignedTo === currentUser.id;
+      if (!roleMatch) return false;
+
       // 1. Search Match
       const searchMatch = 
         localSearch === '' ||
@@ -139,7 +144,7 @@ export default function TasksPage() {
 
       return searchMatch && priorityMatch && tabMatch;
     });
-  }, [tasks, localSearch, filterPriority, activeTab]);
+  }, [tasks, localSearch, filterPriority, activeTab, currentUser]);
 
   return (
     <div className="space-y-6" dir={dir}>

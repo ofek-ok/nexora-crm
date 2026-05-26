@@ -26,13 +26,39 @@ export default function DashboardPage() {
   const tasks = useCRMStore((state) => state.tasks);
   const activities = useCRMStore((state) => state.activities);
   const statuses = useCRMStore((state) => state.pipelineStatuses);
+  const currentUser = useCRMStore((state) => state.currentUser);
 
   // --- STATS CALCULATIONS ---
-  const totalLeads = leads.length;
-  const activeCustomers = customers.length;
+  // --- ROLE FILTERED DATA ---
+  const visibleLeads = leads.filter(l => currentUser?.role !== 'agent' || l.assignedOwnerId === currentUser.id);
+  const visibleCustomers = customers.filter(c => {
+    if (currentUser?.role !== 'agent') return true;
+    const lead = leads.find(l => l.id === c.leadId);
+    return lead && lead.assignedOwnerId === currentUser.id;
+  });
+  const visibleTasks = tasks.filter(t => currentUser?.role !== 'agent' || t.assignedTo === currentUser.id);
+  const visibleActivities = activities.filter(a => {
+    if (currentUser?.role !== 'agent') return true;
+    if (a.leadId) {
+      const lead = leads.find(l => l.id === a.leadId);
+      return lead && lead.assignedOwnerId === currentUser.id;
+    }
+    if (a.customerId) {
+      const customer = customers.find(c => c.id === a.customerId);
+      if (customer) {
+        const lead = leads.find(l => l.id === customer.leadId);
+        return lead && lead.assignedOwnerId === currentUser.id;
+      }
+    }
+    return a.createdBy === currentUser.id;
+  });
+
+  // --- STATS CALCULATIONS ---
+  const totalLeads = visibleLeads.length;
+  const activeCustomers = visibleCustomers.length;
   
   // Open deals: leads not in Closed Won (s-5) or Closed Lost (s-6)
-  const openDealsList = leads.filter(
+  const openDealsList = visibleLeads.filter(
     (l) => l.statusId !== 's-5' && l.statusId !== 's-6'
   );
   const openDealsCount = openDealsList.length;
@@ -42,14 +68,14 @@ export default function DashboardPage() {
 
   // Tasks due today: pending tasks due on or before 2026-05-26
   const todayStr = '2026-05-26'; // Fixed reference today date for MVP consistency
-  const tasksDueTodayCount = tasks.filter(
+  const tasksDueTodayCount = visibleTasks.filter(
     (t) => t.dueDate === todayStr && t.status === 'pending'
   ).length;
 
   // --- CHART CALCULATIONS ---
   // Distribution of deal value per stage
   const stageData = statuses.map((status) => {
-    const leadsInStage = leads.filter((l) => l.statusId === status.id);
+    const leadsInStage = visibleLeads.filter((l) => l.statusId === status.id);
     const value = leadsInStage.reduce((sum, l) => sum + l.dealValue, 0);
     const count = leadsInStage.length;
     return {
@@ -64,7 +90,7 @@ export default function DashboardPage() {
   const maxStageValue = Math.max(...stageData.map((d) => d.value), 1);
 
   // Get recent 5 activities
-  const recentActivities = activities.slice(0, 5);
+  const recentActivities = visibleActivities.slice(0, 5);
 
   const activityIcons = {
     note: <MessageSquare className="w-4 h-4 text-brand-primary" />,

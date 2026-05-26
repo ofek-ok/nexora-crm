@@ -35,6 +35,7 @@ export default function LeadsPage() {
   const leads = useCRMStore((state) => state.leads);
   const statuses = useCRMStore((state) => state.pipelineStatuses);
   const users = useCRMStore((state) => state.users);
+  const currentUser = useCRMStore((state) => state.currentUser);
   const addLead = useCRMStore((state) => state.addLead);
   const updateLead = useCRMStore((state) => state.updateLead);
   const deleteLead = useCRMStore((state) => state.deleteLead);
@@ -251,6 +252,10 @@ export default function LeadsPage() {
   // --- COMPUTED DATA ---
   const filteredLeads = useMemo(() => {
     return leads.filter((lead) => {
+      // Role Filter Check
+      const roleMatch = currentUser?.role !== 'agent' || lead.assignedOwnerId === currentUser.id;
+      if (!roleMatch) return false;
+
       // Search Match
       const searchMatch = 
         localSearch === '' ||
@@ -279,7 +284,7 @@ export default function LeadsPage() {
       if (valA > valB) return sortDirection === 'asc' ? 1 : -1;
       return 0;
     });
-  }, [leads, localSearch, filterStatus, filterSource, filterIndustry, sortField, sortDirection]);
+  }, [leads, localSearch, filterStatus, filterSource, filterIndustry, sortField, sortDirection, currentUser]);
 
   // Pagination Calculations
   const totalPages = Math.ceil(filteredLeads.length / itemsPerPage) || 1;
@@ -595,20 +600,26 @@ export default function LeadsPage() {
 
               {/* Notes List */}
               <ul className="space-y-3.5 max-h-[180px] overflow-y-auto pr-1">
-                {leadNotes.map(n => (
-                  <li key={n.id} className="p-3 border border-border-custom bg-bg-tertiary/20 rounded-xl relative group">
-                    <p className="text-xs text-text-primary leading-relaxed">{n.content}</p>
-                    <div className="flex items-center justify-between mt-2 text-[9px] text-text-tertiary">
-                      <span>{new Date(n.createdAt).toLocaleString()}</span>
-                      <button 
-                        onClick={() => deleteNote(n.id)}
-                        className="text-brand-danger opacity-0 group-hover:opacity-100 hover:underline transition-opacity cursor-pointer"
-                      >
-                        {t('common.delete')}
-                      </button>
-                    </div>
-                  </li>
-                ))}
+                {leadNotes.map(n => {
+                  const creator = users.find(u => u.id === n.createdBy);
+                  return (
+                    <li key={n.id} className="p-3 border border-border-custom bg-bg-tertiary/20 rounded-xl relative group">
+                      <p className="text-xs text-text-primary leading-relaxed">{n.content}</p>
+                      <div className="flex items-center justify-between mt-2 text-[9px] text-text-tertiary">
+                        <span className="flex items-center gap-1.5">
+                          <span>{new Date(n.createdAt).toLocaleString()}</span>
+                          {creator && <span className="font-semibold text-brand-primary">by {creator.fullName}</span>}
+                        </span>
+                        <button 
+                          onClick={() => deleteNote(n.id)}
+                          className="text-brand-danger opacity-0 group-hover:opacity-100 hover:underline transition-opacity cursor-pointer"
+                        >
+                          {t('common.delete')}
+                        </button>
+                      </div>
+                    </li>
+                  );
+                })}
               </ul>
             </div>
 
