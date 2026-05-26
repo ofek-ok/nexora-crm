@@ -55,13 +55,13 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
       >
         {/* Logo Section */}
         <div className="flex items-center justify-between h-16 px-6 border-b border-border-custom bg-bg-tertiary/10">
-          <Link href="/dashboard" className="flex items-center gap-2" onClick={onClose}>
-            <div className="w-8 h-8 rounded-lg bg-brand-primary flex items-center justify-center text-white font-bold font-display shadow-md">
-              N
-            </div>
-            <span className="text-lg font-bold font-display tracking-tight text-text-primary">
-              Nexora <span className="text-brand-primary">CRM</span>
-            </span>
+          <Link href="/dashboard" className="flex items-center py-1" onClick={onClose}>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img 
+              src="/logo.png" 
+              alt="Nexora CRM" 
+              className="h-7 w-auto object-contain dark:brightness-110" 
+            />
           </Link>
           <button 
             onClick={onClose} 

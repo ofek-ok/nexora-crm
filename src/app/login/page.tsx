@@ -74,12 +74,14 @@ export default function LoginPage() {
 
       <Card className="shadow-xl border border-border-custom bg-bg-secondary p-8 rounded-2xl">
         <div className="text-center mb-8">
-          <div className="inline-flex w-12 h-12 rounded-xl bg-brand-primary items-center justify-center text-white font-bold text-2xl font-display mb-3 shadow-md">
-            N
+          <div className="flex justify-center mb-4">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img 
+              src="/logo.png" 
+              alt="Nexora CRM" 
+              className="h-10 w-auto object-contain dark:brightness-110" 
+            />
           </div>
-          <h2 className="text-2xl font-bold font-display text-text-primary">
-            Nexora CRM
-          </h2>
           <p className="text-sm text-text-secondary mt-1.5">
             {t('auth.login')}
           </p>
