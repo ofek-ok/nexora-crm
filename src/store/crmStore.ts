@@ -718,7 +718,7 @@ export const useCRMStore = create<CRMState>((set, get) => {
           return false;
         } catch (e) {
           console.error('Supabase register error:', e);
-          return false;
+          throw e;
         }
       }
 
