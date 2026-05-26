@@ -1,6 +1,21 @@
 'use client';
 
+import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { useCRMStore } from '@/store/crmStore';
+
 export default function Home() {
+  const router = useRouter();
+  const isAuthenticated = useCRMStore((state) => state.isAuthenticated);
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      router.replace('/dashboard');
+    } else {
+      router.replace('/login');
+    }
+  }, [isAuthenticated, router]);
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-bg-primary">
       <div className="flex flex-col items-center gap-3">
