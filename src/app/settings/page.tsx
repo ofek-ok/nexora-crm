@@ -165,41 +165,6 @@ export default function SettingsPage() {
               <Globe className="w-4 h-4 text-brand-primary" /> {isRTL ? 'העדפות מערכת' : 'System Preferences'}
             </h4>
 
-            {/* Language */}
-            <div className="space-y-3 mb-6">
-              <label className="text-xs font-semibold text-text-secondary uppercase tracking-wider block">
-                {t('settings.language')}
-              </label>
-              <div className="grid grid-cols-2 gap-2">
-                <button
-                  onClick={() => {
-                    useCRMStore.getState().setLanguage('en');
-                    addToast('Language set to English', 'success');
-                  }}
-                  className={`py-2 px-3 text-xs font-semibold rounded-xl border transition-all duration-200 cursor-pointer ${
-                    language === 'en' 
-                      ? 'bg-brand-primary text-white border-brand-primary' 
-                      : 'border-border-custom hover:bg-bg-tertiary text-text-secondary'
-                  }`}
-                >
-                  English
-                </button>
-                <button
-                  onClick={() => {
-                    useCRMStore.getState().setLanguage('he');
-                    addToast('השפה שונתה לעברית', 'success');
-                  }}
-                  className={`py-2 px-3 text-xs font-semibold rounded-xl border transition-all duration-200 cursor-pointer ${
-                    language === 'he' 
-                      ? 'bg-brand-primary text-white border-brand-primary' 
-                      : 'border-border-custom hover:bg-bg-tertiary text-text-secondary'
-                  }`}
-                >
-                  עברית
-                </button>
-              </div>
-            </div>
-
             {/* Theme */}
             <div className="space-y-3">
               <label className="text-xs font-semibold text-text-secondary uppercase tracking-wider block">
