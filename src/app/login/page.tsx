@@ -17,10 +17,8 @@ export default function LoginPage() {
   const setTheme = useCRMStore((state) => state.setTheme);
   const addToast = useCRMStore((state) => state.addToast);
 
-  const [email, setEmail] = useState('admin@nexora.com');
-  const [name, setName] = useState('Ofek Ok');
-  const [role, setRole] = useState<'admin' | 'agent'>('admin');
-  const [password, setPassword] = useState('password123');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
   const toggleTheme = () => {
@@ -44,11 +42,11 @@ export default function LoginPage() {
 
     setIsLoading(true);
     try {
-      const success = await login(email, name || 'Demo User', role);
+      const success = await login(email, '', 'agent');
       if (success) {
         addToast(t('auth.loginSuccess'), 'success');
       } else {
-        addToast(language === 'he' ? 'שגיאה בהתחברות' : 'Failed to login', 'error');
+        addToast(language === 'he' ? 'שגיאה בהתחברות - משתמש לא קיים במערכת' : 'Failed to login - user does not exist', 'error');
       }
     } catch (err) {
       console.error(err);
@@ -105,29 +103,6 @@ export default function LoginPage() {
             icon={<Lock className="w-4 h-4" />}
             required
           />
-
-          {/* Quick Mock Controls */}
-          <div className="p-3 border border-border-custom rounded-xl bg-bg-tertiary/20 space-y-3">
-            <span className="text-[10px] font-bold text-text-tertiary uppercase tracking-wider block">
-              MVP Demo Controls (Auto-fills)
-            </span>
-            <Input
-              label={t('auth.fullName')}
-              type="text"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              icon={<UserIcon className="w-4 h-4" />}
-            />
-            <Select
-              label={t('auth.role')}
-              value={role}
-              onChange={(e) => setRole(e.target.value as 'admin' | 'agent')}
-              options={[
-                { value: 'admin', label: 'Admin (מנהל)' },
-                { value: 'agent', label: 'Agent (נציג)' }
-              ]}
-            />
-          </div>
 
           <div className="flex justify-between items-center text-xs">
             <Link 

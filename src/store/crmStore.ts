@@ -449,12 +449,18 @@ const saveState = (state: Partial<CRMState>) => {
 
 // --- STORE CREATION ---
 
+const isUUID = (val?: string | null): boolean => {
+  if (!val) return false;
+  const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+  return uuidRegex.test(val);
+};
+
 export const useCRMStore = create<CRMState>((set, get) => {
   // Load initial state
   const defaultState = {
-    currentUser: DEFAULT_USERS[0],
+    currentUser: null,
     users: DEFAULT_USERS,
-    isAuthenticated: true,
+    isAuthenticated: false,
     language: 'en' as 'en' | 'he',
     theme: 'light' as 'light' | 'dark',
     searchQuery: '',
@@ -626,38 +632,9 @@ export const useCRMStore = create<CRMState>((set, get) => {
             return true;
           }
 
-          // If user does not exist in Supabase, create them (auto-register on login for mock fallback convenience)
-          const { data: newUser, error: insertError } = await supabase
-            .from('users')
-            .insert({
-              email: email.toLowerCase(),
-              full_name: fullName,
-              role: role
-            })
-            .select()
-            .single();
-
-          if (insertError) throw insertError;
-
-          if (newUser) {
-            const mappedUser: User = {
-              id: newUser.id,
-              email: newUser.email,
-              fullName: newUser.full_name,
-              role: newUser.role as UserRole,
-              avatarUrl: newUser.avatar_url || undefined
-            };
-            set(state => ({
-              users: [...state.users, mappedUser],
-              currentUser: mappedUser,
-              isAuthenticated: true
-            }));
-            saveState(get());
-            return true;
-          }
           return false;
         } catch (e) {
-          console.error('Supabase login/auto-register error:', e);
+          console.error('Supabase login error:', e);
           return false;
         }
       }
@@ -670,19 +647,7 @@ export const useCRMStore = create<CRMState>((set, get) => {
         return true;
       }
       
-      const newUser: User = {
-        id: `u-${Date.now()}`,
-        email,
-        fullName,
-        role
-      };
-      set(state => ({
-        users: [...state.users, newUser],
-        currentUser: newUser,
-        isAuthenticated: true
-      }));
-      saveState(get());
-      return true;
+      return false;
     },
     register: async (email, fullName, role) => {
       if (isSupabaseConfigured && supabase) {
@@ -792,8 +757,8 @@ export const useCRMStore = create<CRMState>((set, get) => {
             industry: lead.industry,
             lead_source: lead.leadSource,
             deal_value: Number(lead.dealValue),
-            assigned_owner_id: lead.assignedOwnerId === 'u-1' ? null : lead.assignedOwnerId,
-            status_id: lead.statusId
+            assigned_owner_id: isUUID(lead.assignedOwnerId) ? lead.assignedOwnerId : null,
+            status_id: isUUID(lead.statusId) ? lead.statusId : (get().pipelineStatuses.find(s => isUUID(s.id))?.id || lead.statusId)
           }).select().single();
 
           if (error) throw error;
@@ -869,8 +834,12 @@ export const useCRMStore = create<CRMState>((set, get) => {
           if (updates.industry !== undefined) payload.industry = updates.industry;
           if (updates.leadSource !== undefined) payload.lead_source = updates.leadSource;
           if (updates.dealValue !== undefined) payload.deal_value = Number(updates.dealValue);
-          if (updates.assignedOwnerId !== undefined) payload.assigned_owner_id = updates.assignedOwnerId;
-          if (updates.statusId !== undefined) payload.status_id = updates.statusId;
+          if (updates.assignedOwnerId !== undefined) {
+            payload.assigned_owner_id = isUUID(updates.assignedOwnerId) ? updates.assignedOwnerId : null;
+          }
+          if (updates.statusId !== undefined) {
+            payload.status_id = isUUID(updates.statusId) ? updates.statusId : (get().pipelineStatuses.find(s => isUUID(s.id))?.id || updates.statusId);
+          }
           if (updates.tags !== undefined) payload.tags = updates.tags;
 
           const { error } = await supabase.from('leads').update(payload).eq('id', id);
@@ -943,7 +912,7 @@ export const useCRMStore = create<CRMState>((set, get) => {
         try {
           // Insert customer to db
           const { data: custData, error: custErr } = await supabase.from('customers').insert({
-            lead_id: lead.id,
+            lead_id: isUUID(lead.id) ? lead.id : null,
             company_name: lead.companyName,
             contact_name: lead.contactName,
             email: lead.email,
@@ -961,7 +930,7 @@ export const useCRMStore = create<CRMState>((set, get) => {
             }));
 
             // Sync won status on lead in db
-            if (wonStatus) {
+            if (wonStatus && isUUID(leadId)) {
               await supabase.from('leads').update({ status_id: wonStatus.id }).eq('id', leadId);
             }
 
@@ -1128,24 +1097,24 @@ export const useCRMStore = create<CRMState>((set, get) => {
             due_date: task.dueDate,
             priority: task.priority,
             status: task.status,
-            assigned_to: task.assignedTo === 'u-1' ? null : task.assignedTo,
-            lead_id: task.leadId || null,
-            customer_id: task.customerId || null
+            assigned_to: isUUID(task.assignedTo) ? task.assignedTo : null,
+            lead_id: isUUID(task.leadId || '') ? task.leadId : null,
+            customer_id: isUUID(task.customerId || '') ? task.customerId : null
           }).select().single();
 
           if (error) throw error;
           if (data) {
             set(state => ({
               tasks: state.tasks.map(t => t.id === tempId ? { ...t, id: data.id } : t),
-              activities: state.activities.map(a => a.createdAt === activity.createdAt ? { ...a, leadId: task.leadId, customerId: task.customerId } : a)
+              activities: state.activities.map(a => a.createdAt === activity.createdAt ? { ...a, leadId: isUUID(task.leadId || '') ? task.leadId : undefined, customerId: isUUID(task.customerId || '') ? task.customerId : undefined } : a)
             }));
 
             await supabase.from('activities').insert({
               type: 'meeting',
               content_en: `New task assigned: "${task.title}".`,
               content_he: `משימה חדשה הוקצתה: "${task.title}".`,
-              lead_id: task.leadId || null,
-              customer_id: task.customerId || null
+              lead_id: isUUID(task.leadId || '') ? task.leadId : null,
+              customer_id: isUUID(task.customerId || '') ? task.customerId : null
             });
           }
         } catch (e) {
@@ -1223,9 +1192,9 @@ export const useCRMStore = create<CRMState>((set, get) => {
         try {
           const { data, error } = await supabase.from('notes').insert({
             content: note.content,
-            lead_id: note.leadId || null,
-            customer_id: note.customerId || null,
-            created_by: note.createdBy === 'u-1' ? null : note.createdBy
+            lead_id: isUUID(note.leadId || '') ? note.leadId : null,
+            customer_id: isUUID(note.customerId || '') ? note.customerId : null,
+            created_by: isUUID(note.createdBy) ? note.createdBy : null
           }).select().single();
 
           if (error) throw error;
@@ -1238,8 +1207,8 @@ export const useCRMStore = create<CRMState>((set, get) => {
               type: 'note',
               content_en: `Added note: "${note.content.substring(0, 40)}..."`,
               content_he: `נוספה הערה: "${note.content.substring(0, 40)}..."`,
-              lead_id: note.leadId || null,
-              customer_id: note.customerId || null
+              lead_id: isUUID(note.leadId || '') ? note.leadId : null,
+              customer_id: isUUID(note.customerId || '') ? note.customerId : null
             });
           }
         } catch (e) {
@@ -1301,8 +1270,8 @@ export const useCRMStore = create<CRMState>((set, get) => {
             file_name: attachment.fileName,
             file_url: attachment.fileUrl,
             file_size: attachment.fileSize,
-            lead_id: attachment.leadId || null,
-            customer_id: attachment.customerId || null
+            lead_id: isUUID(attachment.leadId || '') ? attachment.leadId : null,
+            customer_id: isUUID(attachment.customerId || '') ? attachment.customerId : null
           }).select().single();
 
           if (error) throw error;
@@ -1315,8 +1284,8 @@ export const useCRMStore = create<CRMState>((set, get) => {
               type: 'file_upload',
               content_en: `Uploaded file: ${attachment.fileName}`,
               content_he: `הועלה קובץ חדש: ${attachment.fileName}`,
-              lead_id: attachment.leadId || null,
-              customer_id: attachment.customerId || null
+              lead_id: isUUID(attachment.leadId || '') ? attachment.leadId : null,
+              customer_id: isUUID(attachment.customerId || '') ? attachment.customerId : null
             });
           }
         } catch (e) {

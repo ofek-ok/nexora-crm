@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
-import Link from 'next/link';
 import { useCRMStore } from '@/store/crmStore';
 import { 
   Globe, 
@@ -26,19 +25,13 @@ import {
   Activity,
   ChevronRight,
   TrendingUp,
-  LayoutDashboard,
   Mail,
-  Building,
-  MessageCircle,
-  Calculator,
-  Star,
-  Quote
+  Building
 } from 'lucide-react';
 
 export default function LandingPage() {
   const addLead = useCRMStore((state) => state.addLead);
   const pipelineStatuses = useCRMStore((state) => state.pipelineStatuses);
-  const isAuthenticated = useCRMStore((state) => state.isAuthenticated);
   const addToast = useCRMStore((state) => state.addToast);
 
   // Form State
@@ -50,10 +43,7 @@ export default function LandingPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
 
-  // Calculator State
-  const [calcUnits, setCalcUnits] = useState(100);
-  const [calcPrice, setCalcPrice] = useState(200);
-  const savings = Math.round(calcUnits * calcPrice * 0.42);
+
 
   // FAQ State
   const [openFaq, setOpenFaq] = useState<number | null>(null);
@@ -250,25 +240,8 @@ export default function LandingPage() {
             ))}
           </nav>
 
-          {/* CTA & Dashboard Button */}
+          {/* CTA Button */}
           <div className="hidden md:flex items-center gap-3">
-            {isAuthenticated ? (
-              <Link 
-                href="/dashboard"
-                className="inline-flex items-center gap-2 px-4 py-2 text-xs font-bold text-white bg-[#10B981] hover:bg-[#059669] rounded-xl transition-all duration-200 shadow-lg shadow-emerald-500/20 active:scale-95"
-              >
-                <LayoutDashboard className="w-3.5 h-3.5" />
-                אזור ניהול ה-CRM
-              </Link>
-            ) : (
-              <Link 
-                href="/login"
-                className="text-xs font-bold text-slate-300 hover:text-white px-3 py-2 transition-colors"
-              >
-                התחברות
-              </Link>
-            )}
-            
             <a
               href="#cta"
               onClick={(e) => handleScrollTo(e, 'cta')}
@@ -313,15 +286,6 @@ export default function LandingPage() {
             ))}
             <hr className="border-slate-800 my-1" />
             <div className="flex flex-col gap-3">
-              {isAuthenticated && (
-                <Link 
-                  href="/dashboard"
-                  className="flex items-center justify-center gap-2 w-full py-3 text-sm font-bold text-white bg-[#10B981] hover:bg-[#059669] rounded-xl text-center"
-                >
-                  <LayoutDashboard className="w-4 h-4" />
-                  אזור ניהול ה-CRM
-                </Link>
-              )}
               <a
                 href="#cta"
                 onClick={(e) => handleScrollTo(e, 'cta')}
@@ -329,14 +293,6 @@ export default function LandingPage() {
               >
                 בדיקת רווחיות חינם
               </a>
-              {!isAuthenticated && (
-                <Link 
-                  href="/login"
-                  className="w-full py-3 text-sm font-bold text-slate-300 hover:text-white rounded-xl text-center bg-slate-800/50"
-                >
-                  התחברות למערכת
-                </Link>
-              )}
             </div>
           </div>
         )}
@@ -694,15 +650,15 @@ export default function LandingPage() {
             {/* Photo Column - Real partner photos */}
             <div className="lg:col-span-5 order-2 lg:order-1 grid grid-cols-2 gap-4 w-full max-w-md mx-auto">
 
-              {/* Partner 1: Shalev (Right Card in RTL) */}
+              {/* Partner 1: Shalev – gray background photo (right in RTL) */}
               <div className="relative rounded-2xl overflow-hidden border-2 border-slate-200/60 shadow-lg bg-white group hover:border-[#2563EB] hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
                 <div className="w-full aspect-[3/4] relative overflow-hidden">
                   <img
-                    src="/shalev.png"
+                    src="/ofek.jpg"
                     alt="שלו סגל – מייסד שותף ומנכ&quot;ל Nexora"
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    className="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-500"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-[#0F172A]/80 via-transparent to-transparent" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-[#0F172A]/80 via-[#0F172A]/10 to-transparent" />
                   <div className="absolute bottom-0 right-0 left-0 p-3">
                     <h4 className="text-sm font-extrabold text-white text-right">שלו סגל</h4>
                     <p className="text-[10px] text-blue-300 text-right font-medium">מייסד שותף ומנכ&quot;ל</p>
@@ -713,15 +669,15 @@ export default function LandingPage() {
                 </div>
               </div>
 
-              {/* Partner 2: Ofek (Left Card in RTL) */}
+              {/* Partner 2: Ofek – blue background photo (left in RTL) */}
               <div className="relative rounded-2xl overflow-hidden border-2 border-slate-200/60 shadow-lg bg-white group hover:border-[#10B981] hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
                 <div className="w-full aspect-[3/4] relative overflow-hidden">
                   <img
-                    src="/ofek.png"
+                    src="/shalev.jpg"
                     alt="אופק אוקונסקי – מייסד שותף, סמנכ&quot;ל תפעול וטכנולוגיות Nexora"
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    className="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-500"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-[#0F172A]/80 via-transparent to-transparent" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-[#0F172A]/80 via-[#0F172A]/10 to-transparent" />
                   <div className="absolute bottom-0 right-0 left-0 p-3">
                     <h4 className="text-sm font-extrabold text-white text-right">אופק אוקונסקי</h4>
                     <p className="text-[10px] text-emerald-300 text-right font-medium">מייסד שותף, סמנכ&quot;ל תפעול</p>
@@ -1074,84 +1030,6 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* TESTIMONIALS SECTION */}
-      <section className="py-20 bg-[#F8FAFC] border-t border-slate-100">
-        <div className="max-w-6xl mx-auto px-6">
-          <div className="text-center mb-12 reveal">
-            <span className="text-xs font-bold text-[#2563EB] tracking-wider uppercase mb-3 block">מה הלקוחות שלנו אומרים</span>
-            <h2 className="text-2xl md:text-3xl font-extrabold text-[#0F172A]">אנשים שכבר עשו את הצעד</h2>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {[
-              { quote: 'הייתי סקפטי בהתחלה, אבל אחרי הייבוא הראשון חסכתי ₪38,000 ברבעון אחד בלבד. הצוות של Nexora עשה הכל בשבילי ואני לא הרגשתי כלום מהבלגן.', name: 'יוסי ב.', role: 'בעל עסק לכלי בית, רמת גן', stars: 5 },
-              { quote: 'ניסיתי בעבר לייבא לבד ונתקעתי במכס 3 שבועות. עם Nexora הכל עבר חלק ובזמן. מחיר עלה חצי ממה שהייתי משלם לספק המקומי.', name: 'רחל מ.', role: 'יזמית ייצור טקסטיל, תל אביב', stars: 5 },
-              { quote: 'הבדיקת רווחיות שעשו לי חינם הפתיעה אותי – גיליתי שאני משלם כפול על מוצרים שאני קונה 3 שנים. היום אני חוסך ₪25K בחודש.', name: 'משה כ.', role: 'מנהל רכש, חברת ציוד רפואי', stars: 5 }
-            ].map((t, i) => (
-              <div key={i} className={`reveal reveal-delay-${i+1} bg-white rounded-2xl p-6 border border-slate-200/80 shadow-sm hover:shadow-md transition-all duration-300 flex flex-col gap-4`}>
-                <div className="flex gap-1">{Array.from({length: t.stars}).map((_,s) => <Star key={s} className="w-4 h-4 fill-amber-400 text-amber-400" />)}</div>
-                <p className="text-slate-600 text-sm leading-relaxed text-right flex-1">&quot;{t.quote}&quot;</p>
-                <div className="flex items-center gap-3 justify-end pt-3 border-t border-slate-100">
-                  <div className="text-right">
-                    <div className="text-xs font-bold text-[#0F172A]">{t.name}</div>
-                    <div className="text-[10px] text-slate-500">{t.role}</div>
-                  </div>
-                  <div className="w-9 h-9 rounded-full bg-gradient-to-br from-[#2563EB] to-[#10B981] flex items-center justify-center text-white font-bold text-xs flex-shrink-0">{t.name.charAt(0)}</div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* SAVINGS CALCULATOR SECTION */}
-      <section className="py-20 bg-white border-t border-slate-100">
-        <div className="max-w-3xl mx-auto px-6">
-          <div className="text-center mb-10 reveal">
-            <span className="text-xs font-bold text-[#10B981] tracking-wider uppercase mb-3 block">מחשבון חיסכון</span>
-            <h2 className="text-2xl md:text-3xl font-extrabold text-[#0F172A] mb-2">כמה כסף העסק שלך יכול לחסוך?</h2>
-            <p className="text-slate-500 text-sm">הזז את הסליידרים וגלה כמה אתה משאיר על הרצפה</p>
-          </div>
-          <div className="reveal bg-gradient-to-br from-[#0F172A] to-[#1E293B] rounded-3xl p-8 md:p-12 border border-slate-700 shadow-2xl">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
-              <div className="text-right">
-                <label className="block text-xs font-bold text-slate-300 mb-3">כמות יחידות לרכישה בחודש</label>
-                <input
-                  type="range" min="10" max="10000" step="10" value={calcUnits}
-                  onChange={e => setCalcUnits(Number(e.target.value))}
-                  className="w-full accent-blue-500 cursor-pointer"
-                />
-                <div className="flex justify-between text-[10px] text-slate-500 mt-1">
-                  <span>10,000</span><span className="text-blue-400 font-bold text-sm">{calcUnits.toLocaleString()} יח&apos;</span><span>10</span>
-                </div>
-              </div>
-              <div className="text-right">
-                <label className="block text-xs font-bold text-slate-300 mb-3">מחיר קנייה נוכחי בארץ (₪ ליחידה)</label>
-                <input
-                  type="range" min="10" max="5000" step="10" value={calcPrice}
-                  onChange={e => setCalcPrice(Number(e.target.value))}
-                  className="w-full accent-emerald-500 cursor-pointer"
-                />
-                <div className="flex justify-between text-[10px] text-slate-500 mt-1">
-                  <span>₪5,000</span><span className="text-emerald-400 font-bold text-sm">₪{calcPrice.toLocaleString()}</span><span>₪10</span>
-                </div>
-              </div>
-            </div>
-            <div className="text-center p-6 rounded-2xl bg-gradient-to-r from-emerald-500/10 to-blue-500/10 border border-emerald-500/20">
-              <p className="text-slate-400 text-xs mb-2">חיסכון שנתי אפשרי בייבוא ישיר</p>
-              <div className="text-4xl md:text-5xl font-extrabold text-emerald-400">₪{(savings * 12).toLocaleString()}</div>
-              <p className="text-slate-500 text-xs mt-2">כ-₪{savings.toLocaleString()} בחודש | חיסכון ממוצע של 42% מעלות הרכש</p>
-            </div>
-            <div className="text-center mt-6">
-              <a href="#cta" onClick={(e) => handleScrollTo(e, 'cta')}
-                className="inline-flex items-center gap-2 px-8 py-3.5 bg-[#10B981] hover:bg-[#059669] text-white font-bold rounded-2xl transition-all shadow-lg shadow-emerald-500/20 text-sm">
-                אני רוצה לחסוך ₪{(savings * 12).toLocaleString()} בשנה
-                <ArrowLeft className="w-4 h-4" />
-              </a>
-            </div>
-          </div>
-        </div>
-      </section>
-
       {/* FAQ SECTION */}
       <section className="py-20 bg-[#F8FAFC] border-t border-slate-100">
         <div className="max-w-3xl mx-auto px-6">
@@ -1222,7 +1100,7 @@ export default function LandingPage() {
             <span className="text-slate-800">|</span>
             <a href="#solution" onClick={(e) => handleScrollTo(e, 'solution')} className="hover:text-white transition-colors">שיטת הייבוא המוגן</a>
             <span className="text-slate-800">|</span>
-            <Link href="/login" className="hover:text-white transition-colors">כניסת סוכנים</Link>
+            <a href="#about" onClick={(e) => handleScrollTo(e, 'about')} className="hover:text-white transition-colors">מי אנחנו</a>
           </div>
         </div>
       </footer>
