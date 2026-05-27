@@ -457,6 +457,17 @@ const isUUID = (val?: string | null): boolean => {
   return uuidRegex.test(val);
 };
 
+const migrateUserReferences = async (supabase: any, oldId: string, newId: string) => {
+  try {
+    await supabase.from('leads').update({ assigned_owner_id: newId }).eq('assigned_owner_id', oldId);
+    await supabase.from('tasks').update({ assigned_to: newId }).eq('assigned_to', oldId);
+    await supabase.from('notes').update({ created_by: newId }).eq('created_by', oldId);
+    await supabase.from('activities').update({ created_by: newId }).eq('created_by', oldId);
+  } catch (e) {
+    console.error('Failed to migrate user references:', e);
+  }
+};
+
 export const useCRMStore = create<CRMState>((set, get) => {
   // Load initial state
   const defaultState = {
@@ -699,11 +710,14 @@ export const useCRMStore = create<CRMState>((set, get) => {
                 .maybeSingle();
 
               if (existingEmailProfile) {
+                // Migrate foreign key references first to prevent constraint violations
+                await migrateUserReferences(supabase, existingEmailProfile.id, authData.user.id);
+
                 // Migrate the old profile ID to match the new Auth ID
                 const { data: updatedProfile, error: updateError } = await supabase
                   .from('users')
                   .update({ id: authData.user.id })
-                  .eq('email', email.toLowerCase())
+                  .eq('id', existingEmailProfile.id)
                   .select()
                   .single();
 
@@ -817,6 +831,9 @@ export const useCRMStore = create<CRMState>((set, get) => {
                 .maybeSingle();
 
               if (existingEmailProfile) {
+                // Migrate foreign key references first to prevent constraint violations
+                await migrateUserReferences(supabase, existingEmailProfile.id, authData.user.id);
+
                 // Migrate the old profile to the new Auth user ID
                 const { data: updatedProfile, error: updateError } = await supabase
                   .from('users')
@@ -825,7 +842,7 @@ export const useCRMStore = create<CRMState>((set, get) => {
                     full_name: fullName,
                     role: role
                   })
-                  .eq('email', email.toLowerCase())
+                  .eq('id', existingEmailProfile.id)
                   .select()
                   .single();
 
