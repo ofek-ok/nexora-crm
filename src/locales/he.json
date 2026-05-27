@@ -112,7 +112,11 @@
     "medium": "רגיל",
     "low": "נמוך",
     "calendarView": "לוח שנה",
-    "listView": "רשימה"
+    "listView": "רשימה",
+    "kanbanView": "לוח קנבן",
+    "groupBy": "קבץ לפי",
+    "status": "סטטוס",
+    "priority": "עדיפות"
   },
   "settings": {
     "title": "הגדרות מערכת",

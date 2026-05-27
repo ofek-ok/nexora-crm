@@ -152,6 +152,7 @@ interface CRMState {
   // Task Actions
   addTask: (task: Omit<Task, 'id' | 'createdAt'>) => Promise<void>;
   toggleTaskStatus: (id: string) => Promise<void>;
+  updateTask: (id: string, updates: Partial<Task>) => Promise<void>;
   deleteTask: (id: string) => Promise<void>;
   
   // Note Actions
@@ -1375,6 +1376,33 @@ export const useCRMStore = create<CRMState>((set, get) => {
           await supabase.from('tasks').update({ status: nextStatus }).eq('id', id);
         } catch (e) {
           console.error('Supabase toggleTaskStatus error', e);
+        }
+      }
+    },
+    updateTask: async (id, updates) => {
+      const task = get().tasks.find(t => t.id === id);
+      if (!task) return;
+
+      set(state => ({
+        tasks: state.tasks.map(t => t.id === id ? { ...t, ...updates } : t)
+      }));
+      saveState(get());
+
+      if (isSupabaseConfigured && supabase) {
+        try {
+          const payload: any = {};
+          if (updates.title !== undefined) payload.title = updates.title;
+          if (updates.description !== undefined) payload.description = updates.description;
+          if (updates.dueDate !== undefined) payload.due_date = updates.dueDate;
+          if (updates.priority !== undefined) payload.priority = updates.priority;
+          if (updates.status !== undefined) payload.status = updates.status;
+          if (updates.assignedTo !== undefined) {
+            payload.assigned_to = isUUID(updates.assignedTo) ? updates.assignedTo : null;
+          }
+
+          await supabase.from('tasks').update(payload).eq('id', id);
+        } catch (e) {
+          console.error('Supabase updateTask error:', e);
         }
       }
     },

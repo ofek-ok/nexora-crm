@@ -112,7 +112,11 @@
     "medium": "Normal",
     "low": "Low",
     "calendarView": "Calendar View",
-    "listView": "List View"
+    "listView": "List View",
+    "kanbanView": "Kanban Board",
+    "groupBy": "Group By",
+    "status": "Status",
+    "priority": "Priority"
   },
   "settings": {
     "title": "Settings",
