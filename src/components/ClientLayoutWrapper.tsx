@@ -57,7 +57,7 @@ export default function ClientLayoutWrapper({ children }: { children: React.Reac
   // Render auth pages directly (without sidebar/navbar)
   if (isAuthPage || !isAuthenticated) {
     return (
-      <main className="min-h-screen bg-bg-primary flex flex-col justify-center items-center p-4">
+      <main className="min-h-screen bg-bg-primary flex flex-col">
         {children}
         <ToastContainer />
       </main>

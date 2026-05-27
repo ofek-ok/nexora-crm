@@ -1,27 +1,32 @@
+import { useCRMStore } from '@/store/crmStore';
 import en from '@/locales/en.json';
-
-type LocaleType = typeof en;
+import he from '@/locales/he.json';
 
 export function useTranslation() {
-  const language = 'en';
+  const language = useCRMStore((state) => state.language);
+  const setLanguage = useCRMStore((state) => state.setLanguage);
+
+  const dictionary = language === 'he' ? he : en;
 
   const t = (key: string): string => {
-    const dictionary = en;
     const parts = key.split('.');
-    
     let current: any = dictionary;
     for (const part of parts) {
       if (current[part] === undefined) {
-        return key; // return raw key if missing completely
+        return key;
       }
       current = current[part];
     }
-
     return typeof current === 'string' ? current : key;
   };
 
-  const toggleLanguage = () => {};
+  const toggleLanguage = () => {
+    setLanguage(language === 'en' ? 'he' : 'en');
+  };
 
-  return { t, language: 'en' as 'en' | 'he', toggleLanguage, dir: 'ltr' as 'ltr' | 'rtl' };
+  const dir = language === 'he' ? 'rtl' : 'ltr';
+
+  return { t, language, toggleLanguage, dir: dir as 'ltr' | 'rtl' };
 }
+
 export type TranslateFn = ReturnType<typeof useTranslation>['t'];
