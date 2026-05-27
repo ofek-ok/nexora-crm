@@ -7,7 +7,11 @@ export const isSupabaseConfigured =
   Boolean(supabaseUrl) && 
   Boolean(supabaseAnonKey) && 
   supabaseUrl !== 'placeholder-url' && 
-  supabaseAnonKey !== 'placeholder-key';
+  supabaseAnonKey !== 'placeholder-key' &&
+  supabaseUrl !== 'undefined' &&
+  supabaseAnonKey !== 'undefined' &&
+  supabaseUrl !== 'null' &&
+  supabaseAnonKey !== 'null';
 
 // Initialize the Supabase client safely
 export const supabase = isSupabaseConfigured
