@@ -762,7 +762,7 @@ export const useCRMStore = create<CRMState>((set, get) => {
           return false;
         } catch (e) {
           console.error('Supabase login error:', e);
-          return false;
+          throw e;
         }
       }
 
