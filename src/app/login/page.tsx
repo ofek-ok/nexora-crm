@@ -4,9 +4,10 @@ import { useCRMStore } from '@/store/crmStore';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useState } from 'react';
 import Link from 'next/link';
+import { isSupabaseConfigured } from '@/lib/supabase';
 import {
   Mail, Lock, Sun, Moon, Globe,
-  TrendingUp, Users, BarChart3, ArrowRight, Eye, EyeOff
+  TrendingUp, Users, BarChart3, ArrowRight, Eye, EyeOff, AlertTriangle
 } from 'lucide-react';
 
 export default function LoginPage() {
@@ -49,9 +50,14 @@ export default function LoginPage() {
           'error'
         );
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
-      addToast(language === 'he' ? 'שגיאה לא צפויה' : 'An unexpected error occurred', 'error');
+      addToast(
+        language === 'he' 
+          ? `שגיאה בהתחברות: ${err.message || 'פרטים שגויים'}` 
+          : `Login error: ${err.message || 'Invalid credentials'}`,
+        'error'
+      );
     } finally {
       setIsLoading(false);
     }
@@ -194,7 +200,21 @@ export default function LoginPage() {
               </p>
             </div>
 
-
+            {!isSupabaseConfigured && (
+              <div className="mb-6 p-4 rounded-xl border flex items-start gap-3 bg-amber-500/10 border-amber-500/20 text-amber-500 text-xs animate-fade-in">
+                <AlertTriangle className="w-5 h-5 flex-shrink-0 mt-0.5" />
+                <div className="leading-relaxed">
+                  <p className="font-bold mb-1">
+                    {language === 'he' ? 'מצב הדמיה מקומי (Mock Mode)' : 'Running in Local Mock Mode'}
+                  </p>
+                  <p>
+                    {language === 'he' 
+                      ? 'בסיס הנתונים של Supabase אינו מחובר. המשתמשים יישמרו בדפדפן בלבד. כדי לחבר את סופה בייס, הגדר את משתני הסביבה בקובץ env.local.'
+                      : 'Supabase database is not connected. Users are saved in the browser only. Configure environment variables to connect.'}
+                  </p>
+                </div>
+              </div>
+            )}
 
             {/* Form */}
             <form onSubmit={handleLogin} className="space-y-4">
