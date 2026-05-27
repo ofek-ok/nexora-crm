@@ -671,7 +671,7 @@ export const useCRMStore = create<CRMState>((set, get) => {
           if (authError) throw authError;
 
           if (authData.user) {
-            // 2. Fetch profile from public.users table
+            // 2. Fetch profile from public.users table by Auth ID
             const { data: profile, error: profileError } = await supabase
               .from('users')
               .select('*')
@@ -691,36 +691,66 @@ export const useCRMStore = create<CRMState>((set, get) => {
                 avatarUrl: profile.avatar_url || undefined
               };
             } else {
-              // Auto-profile sync: If profile is missing in public.users, create it!
-              const defaultName = authData.user.user_metadata?.full_name || email.split('@')[0];
-              const { data: newProfile, error: insertError } = await supabase
+              // Check if a profile with the same email already exists (e.g., from old mock register)
+              const { data: existingEmailProfile } = await supabase
                 .from('users')
-                .insert({
-                  id: authData.user.id,
-                  email: email.toLowerCase(),
-                  full_name: defaultName,
-                  role: 'admin'
-                })
-                .select()
-                .single();
+                .select('*')
+                .eq('email', email.toLowerCase())
+                .maybeSingle();
 
-              if (insertError) {
-                console.error('Failed to auto-create public user profile:', insertError);
-                // Fallback to minimal user structure
-                mappedUser = {
-                  id: authData.user.id,
-                  email: authData.user.email || email,
-                  fullName: defaultName,
-                  role: 'admin'
-                };
+              if (existingEmailProfile) {
+                // Migrate the old profile ID to match the new Auth ID
+                const { data: updatedProfile, error: updateError } = await supabase
+                  .from('users')
+                  .update({ id: authData.user.id })
+                  .eq('email', email.toLowerCase())
+                  .select()
+                  .single();
+
+                if (!updateError && updatedProfile) {
+                  mappedUser = {
+                    id: updatedProfile.id,
+                    email: updatedProfile.email,
+                    fullName: updatedProfile.full_name,
+                    role: updatedProfile.role as UserRole,
+                    avatarUrl: updatedProfile.avatar_url || undefined
+                  };
+                } else {
+                  console.error('Failed to link old profile ID, creating new fallback:', updateError);
+                  throw updateError || new Error('Update failed');
+                }
               } else {
-                mappedUser = {
-                  id: newProfile.id,
-                  email: newProfile.email,
-                  fullName: newProfile.full_name,
-                  role: newProfile.role as UserRole,
-                  avatarUrl: newProfile.avatar_url || undefined
-                };
+                // Auto-profile sync: If profile is completely missing, create it!
+                const defaultName = authData.user.user_metadata?.full_name || email.split('@')[0];
+                const { data: newProfile, error: insertError } = await supabase
+                  .from('users')
+                  .insert({
+                    id: authData.user.id,
+                    email: email.toLowerCase(),
+                    full_name: defaultName,
+                    role: 'admin'
+                  })
+                  .select()
+                  .single();
+
+                if (insertError) {
+                  console.error('Failed to auto-create public user profile:', insertError);
+                  // Fallback to minimal user structure
+                  mappedUser = {
+                    id: authData.user.id,
+                    email: authData.user.email || email,
+                    fullName: defaultName,
+                    role: 'admin'
+                  };
+                } else {
+                  mappedUser = {
+                    id: newProfile.id,
+                    email: newProfile.email,
+                    fullName: newProfile.full_name,
+                    role: newProfile.role as UserRole,
+                    avatarUrl: newProfile.avatar_url || undefined
+                  };
+                }
               }
             }
 
@@ -777,8 +807,47 @@ export const useCRMStore = create<CRMState>((set, get) => {
               .single();
 
             if (insertError) {
-              console.error('Error inserting into public.users:', insertError);
-              // Check if profile was already inserted by a trigger
+              console.error('Error inserting into public.users, checking for old profile:', insertError);
+              
+              // Check if a profile with the same email already exists (old system migration)
+              const { data: existingEmailProfile } = await supabase
+                .from('users')
+                .select('*')
+                .eq('email', email.toLowerCase())
+                .maybeSingle();
+
+              if (existingEmailProfile) {
+                // Migrate the old profile to the new Auth user ID
+                const { data: updatedProfile, error: updateError } = await supabase
+                  .from('users')
+                  .update({
+                    id: authData.user.id,
+                    full_name: fullName,
+                    role: role
+                  })
+                  .eq('email', email.toLowerCase())
+                  .select()
+                  .single();
+
+                if (!updateError && updatedProfile) {
+                  const mappedUser: User = {
+                    id: updatedProfile.id,
+                    email: updatedProfile.email,
+                    fullName: updatedProfile.full_name,
+                    role: updatedProfile.role as UserRole,
+                    avatarUrl: updatedProfile.avatar_url || undefined
+                  };
+                  set(state => ({
+                    users: [...state.users.filter(u => u.id !== mappedUser.id), mappedUser],
+                    currentUser: mappedUser,
+                    isAuthenticated: true
+                  }));
+                  saveState(get());
+                  return true;
+                }
+              }
+
+              // Check if profile was already inserted by a database trigger
               const { data: existingProfile } = await supabase
                 .from('users')
                 .select('*')
