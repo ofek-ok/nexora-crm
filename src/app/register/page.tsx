@@ -20,7 +20,7 @@ export default function RegisterPage() {
 
   const [email, setEmail] = useState('');
   const [name, setName] = useState('');
-  const [role, setRole] = useState<'admin' | 'agent'>('admin');
+  const [role] = useState<'admin' | 'agent'>('admin');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -245,30 +245,7 @@ export default function RegisterPage() {
                 </div>
               </div>
 
-              {/* Role selector */}
-              <div className="flex flex-col gap-1.5">
-                <label className="text-xs font-semibold text-text-secondary">{t('auth.role')}</label>
-                <div className="grid grid-cols-2 gap-2">
-                  {(['admin', 'agent'] as const).map((r) => (
-                    <button
-                      key={r}
-                      type="button"
-                      onClick={() => setRole(r)}
-                      className="py-2.5 px-4 rounded-xl text-sm font-medium border transition-all duration-200 cursor-pointer"
-                      style={{
-                        background: role === r ? '#3B82F6' : 'var(--bg-secondary)',
-                        color: role === r ? '#fff' : 'var(--text-secondary)',
-                        borderColor: role === r ? '#3B82F6' : 'var(--border-color)',
-                        boxShadow: role === r ? '0 4px 14px rgba(59,130,246,0.3)' : 'none',
-                      }}
-                    >
-                      {r === 'admin'
-                        ? (language === 'he' ? 'מנהל' : 'Admin')
-                        : (language === 'he' ? 'סוכן' : 'Agent')}
-                    </button>
-                  ))}
-                </div>
-              </div>
+
 
               {/* Password */}
               <div className="flex flex-col gap-1.5">

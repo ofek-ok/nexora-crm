@@ -6,7 +6,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import {
   Mail, Lock, Sun, Moon, Globe,
-  TrendingUp, Users, BarChart3, ArrowRight, Eye, EyeOff, CheckCircle2
+  TrendingUp, Users, BarChart3, ArrowRight, Eye, EyeOff
 } from 'lucide-react';
 
 export default function LoginPage() {
@@ -192,17 +192,7 @@ export default function LoginPage() {
               </p>
             </div>
 
-            {/* Demo credentials hint */}
-            <div className="mb-6 p-3 rounded-xl border flex items-start gap-2.5"
-              style={{ borderColor: '#3B82F620', background: '#3B82F608' }}>
-              <CheckCircle2 className="w-4 h-4 text-brand-primary flex-shrink-0 mt-0.5" />
-              <div>
-                <p className="text-xs font-medium text-brand-primary">
-                  {language === 'he' ? 'חשבון הדגמה' : 'Demo account'}
-                </p>
-                <p className="text-xs text-text-tertiary mt-0.5">admin@nexora.com</p>
-              </div>
-            </div>
+
 
             {/* Form */}
             <form onSubmit={handleLogin} className="space-y-4">
