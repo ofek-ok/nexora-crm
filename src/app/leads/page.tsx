@@ -90,20 +90,20 @@ export default function LeadsPage() {
 
   // Sources and Industries options for dropdowns
   const sourceOptions = [
-    { value: 'Website', label: 'Website (אתר אינטרנט)' },
-    { value: 'LinkedIn', label: 'LinkedIn (לינקדאין)' },
-    { value: 'Referral', label: 'Referral (המלצה)' },
-    { value: 'Google Ads', label: 'Google Ads (פרסום בגוגל)' },
-    { value: 'Cold Outreach', label: 'Cold Outreach (פנייה יזומה)' }
+    { value: 'Shanghai Port', label: 'Shanghai Port (נמל שנגחאי)' },
+    { value: 'Haifa Port', label: 'Haifa Port (נמל חיפה)' },
+    { value: 'Ashdod Port', label: 'Ashdod Port (נמל אשדוד)' },
+    { value: 'Rotterdam Port', label: 'Rotterdam Port (נמל רוטרדם)' },
+    { value: 'Ben Gurion Airport', label: 'Ben Gurion Airport (נתב"ג)' },
+    { value: 'Port of Houston', label: 'Port of Houston (נמל יוסטון)' }
   ];
 
   const industryOptions = [
-    { value: 'Software', label: 'Software (תוכנה)' },
-    { value: 'Cybersecurity', label: 'Cybersecurity (סייבר)' },
-    { value: 'Finance', label: 'Finance (פיננסים)' },
-    { value: 'Healthcare', label: 'Healthcare (בריאות)' },
-    { value: 'Logistics', label: 'Logistics (לוגיסטיקה)' },
-    { value: 'Manufacturing', label: 'Manufacturing (ייצור)' }
+    { value: 'Sea Freight (FCL)', label: 'Sea Freight - FCL (מכולה מלאה)' },
+    { value: 'Sea Freight (LCL)', label: 'Sea Freight - LCL (מכולה חלקית)' },
+    { value: 'Air Freight', label: 'Air Freight (שילוח אווירי)' },
+    { value: 'Land Transport', label: 'Land Transport (הובלה יבשתית)' },
+    { value: 'Customs Clearance', label: 'Customs Clearance (עמילות מכס)' }
   ];
 
   // --- HANDLERS ---
@@ -123,8 +123,8 @@ export default function LeadsPage() {
       email: '',
       phone: '',
       country: '',
-      industry: 'Software',
-      leadSource: 'Website',
+      industry: 'Sea Freight (FCL)',
+      leadSource: 'Shanghai Port',
       dealValue: 0,
       assignedOwnerId: users[0]?.id || 'u-1',
       statusId: statuses[0]?.id || 's-1',

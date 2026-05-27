@@ -34,7 +34,7 @@ export default function SettingsPage() {
   const deleteStatus = useCRMStore((state) => state.deleteStatus);
   const resetToMockData = useCRMStore((state) => state.resetToMockData);
   const users = useCRMStore((state) => state.users);
-  const login = useCRMStore((state) => state.login);
+  const register = useCRMStore((state) => state.register);
   const addToast = useCRMStore((state) => state.addToast);
   const currentUser = useCRMStore((state) => state.currentUser);
   const updateUserRole = useCRMStore((state) => state.updateUserRole);
@@ -96,8 +96,8 @@ export default function SettingsPage() {
     e.preventDefault();
     if (!newUserEmail || !newUserName) return;
 
-    // Use login action internally to register user
-    await login(newUserEmail, newUserName, newUserRole);
+    // Use register action to add member
+    await register(newUserEmail, 'password123', newUserName, newUserRole);
     setNewUserEmail('');
     setNewUserName('');
     addToast(isRTL ? 'משתמש נוסף בהצלחה' : 'User added successfully', 'success');

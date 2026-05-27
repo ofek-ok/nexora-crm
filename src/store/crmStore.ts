@@ -129,8 +129,8 @@ interface CRMState {
   fetchData: () => Promise<void>;
   
   // Auth Actions
-  login: (email: string, fullName: string, role: UserRole) => Promise<boolean>;
-  register: (email: string, fullName: string, role: UserRole) => Promise<boolean>;
+  login: (email: string, password?: string) => Promise<boolean>;
+  register: (email: string, password?: string, fullName?: string, role?: UserRole) => Promise<boolean>;
   logout: () => void;
   updateUserRole: (id: string, role: UserRole) => Promise<void>;
   
@@ -175,97 +175,98 @@ const DEFAULT_USERS: User[] = [
 ];
 
 const DEFAULT_STATUSES: PipelineStatus[] = [
-  { id: 's-1', nameEn: 'New Lead', nameHe: 'ליד חדש', color: '#2563EB', orderIndex: 0 },
-  { id: 's-2', nameEn: 'Contacted', nameHe: 'נוצר קשר', color: '#8B5CF6', orderIndex: 1 },
-  { id: 's-3', nameEn: 'Negotiation', nameHe: 'משא ומתן', color: '#F59E0B', orderIndex: 2 },
-  { id: 's-4', nameEn: 'Proposal Sent', nameHe: 'הצעה נשלחה', color: '#06B6D4', orderIndex: 3 },
-  { id: 's-5', nameEn: 'Closed Won', nameHe: 'עסקה נסגרה בהצלחה', color: '#10B981', orderIndex: 4 },
-  { id: 's-6', nameEn: 'Closed Lost', nameHe: 'עסקה אבודה', color: '#EF4444', orderIndex: 5 }
+  { id: 's-1', nameEn: 'Inquiry Received', nameHe: 'פנייה / בירור', color: '#2563EB', orderIndex: 0 },
+  { id: 's-2', nameEn: 'Quotation Offered', nameHe: 'הצעת מחיר', color: '#8B5CF6', orderIndex: 1 },
+  { id: 's-3', nameEn: 'Booking Confirmed', nameHe: 'אישור בוקינג', color: '#F59E0B', orderIndex: 2 },
+  { id: 's-4', nameEn: 'Customs & Docs', nameHe: 'מכס ומסמכים', color: '#06B6D4', orderIndex: 3 },
+  { id: 's-5', nameEn: 'In Transit', nameHe: 'בדרך / שילוח פעיל', color: '#3B82F6', orderIndex: 4 },
+  { id: 's-6', nameEn: 'Delivered', nameHe: 'נמסר ליעד', color: '#10B981', orderIndex: 5 },
+  { id: 's-7', nameEn: 'Cancelled', nameHe: 'בוטל', color: '#EF4444', orderIndex: 6 }
 ];
 
 const DEFAULT_LEADS: Lead[] = [
   {
     id: 'l-1',
-    companyName: 'Acme Corp',
+    companyName: 'Global Importers Inc',
     contactName: 'John Doe',
-    email: 'john@acme.com',
+    email: 'john@globalimp.com',
     phone: '+1-555-0199',
-    country: 'United States',
-    industry: 'Software',
-    leadSource: 'Website',
-    dealValue: 12000,
+    country: 'Haifa Port (Israel)',
+    industry: 'Sea Freight (FCL)',
+    leadSource: 'Shanghai Port',
+    dealValue: 4800,
     assignedOwnerId: 'u-2',
     notesCount: 2,
     statusId: 's-1',
-    tags: ['SaaS', 'Enterprise'],
+    tags: ['Electronics', 'Urgent'],
     lastActivityDate: '2026-05-26',
     createdAt: '2026-05-20'
   },
   {
     id: 'l-2',
-    companyName: 'CyberShield Ltd',
+    companyName: 'Israel Agri-Export',
     contactName: 'Idan Cohen',
-    email: 'idan@cybershield.co.il',
+    email: 'idan@israelagri.co.il',
     phone: '+972-52-1234567',
-    country: 'Israel',
-    industry: 'Cybersecurity',
-    leadSource: 'LinkedIn',
-    dealValue: 45000,
+    country: 'Rotterdam (Netherlands)',
+    industry: 'Sea Freight (FCL)',
+    leadSource: 'Ashdod Port',
+    dealValue: 6200,
     assignedOwnerId: 'u-1',
     notesCount: 1,
     statusId: 's-3',
-    tags: ['High Value', 'Security'],
+    tags: ['Reefer', 'Fruits'],
     lastActivityDate: '2026-05-25',
     createdAt: '2026-05-18'
   },
   {
     id: 'l-3',
-    companyName: 'Apex Logistics',
+    companyName: 'Apex Fashion Group',
     contactName: 'Emma Watson',
-    email: 'emma@apexlog.com',
+    email: 'emma@apexfashion.com',
     phone: '+44-20-7946-0958',
-    country: 'United Kingdom',
-    industry: 'Logistics',
-    leadSource: 'Referral',
-    dealValue: 8500,
+    country: 'Ben Gurion Airport (Israel)',
+    industry: 'Air Freight',
+    leadSource: 'London Heathrow',
+    dealValue: 12500,
     assignedOwnerId: 'u-3',
     notesCount: 0,
     statusId: 's-2',
-    tags: ['Logistics'],
+    tags: ['Apparel', 'Express'],
     lastActivityDate: '2026-05-24',
     createdAt: '2026-05-22'
   },
   {
     id: 'l-4',
-    companyName: 'MedTech Systems',
+    companyName: 'MedTech Equipment',
     contactName: 'Noam Levy',
-    email: 'noam@medtech.com',
+    email: 'noam@medtech.co.il',
     phone: '+972-54-7654321',
-    country: 'Israel',
-    industry: 'Healthcare',
-    leadSource: 'Cold Outreach',
-    dealValue: 23000,
+    country: 'Haifa Port (Israel)',
+    industry: 'Sea Freight (LCL)',
+    leadSource: 'Hamburg Port',
+    dealValue: 3100,
     assignedOwnerId: 'u-2',
     notesCount: 3,
     statusId: 's-4',
-    tags: ['Medical', 'Partner'],
-    lastActivityDate: '2026-05-26',
+    tags: ['Medical', 'Fragile'],
+    lastActivityDate: '2026-05-27',
     createdAt: '2026-05-15'
   },
   {
     id: 'l-5',
-    companyName: 'Fintech Solutions',
+    companyName: 'Prime Chemical Distrib',
     contactName: 'Robert Johnson',
-    email: 'robert@fintechsol.com',
+    email: 'robert@primechem.com',
     phone: '+1-555-0144',
-    country: 'United States',
-    industry: 'Finance',
-    leadSource: 'Google Ads',
-    dealValue: 31000,
+    country: 'Ashdod Port (Israel)',
+    industry: 'Sea Freight (FCL)',
+    leadSource: 'Port of Houston',
+    dealValue: 15400,
     assignedOwnerId: 'u-1',
     notesCount: 1,
     statusId: 's-3',
-    tags: ['Fintech'],
+    tags: ['Chemicals', 'Hazmat'],
     lastActivityDate: '2026-05-25',
     createdAt: '2026-05-19'
   }
@@ -658,25 +659,71 @@ export const useCRMStore = create<CRMState>((set, get) => {
     },
 
     // Auth actions
-    login: async (email, fullName, role) => {
+    login: async (email, password = '') => {
       if (isSupabaseConfigured && supabase) {
         try {
-          const { data: match, error } = await supabase
-            .from('users')
-            .select('*')
-            .eq('email', email.toLowerCase())
-            .maybeSingle();
+          // 1. Sign in via Supabase Auth
+          const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
+            email: email.toLowerCase(),
+            password: password
+          });
 
-          if (error) throw error;
+          if (authError) throw authError;
 
-          if (match) {
-            const mappedUser: User = {
-              id: match.id,
-              email: match.email,
-              fullName: match.full_name,
-              role: match.role as UserRole,
-              avatarUrl: match.avatar_url || undefined
-            };
+          if (authData.user) {
+            // 2. Fetch profile from public.users table
+            const { data: profile, error: profileError } = await supabase
+              .from('users')
+              .select('*')
+              .eq('id', authData.user.id)
+              .maybeSingle();
+
+            if (profileError) throw profileError;
+
+            let mappedUser: User;
+
+            if (profile) {
+              mappedUser = {
+                id: profile.id,
+                email: profile.email,
+                fullName: profile.full_name,
+                role: profile.role as UserRole,
+                avatarUrl: profile.avatar_url || undefined
+              };
+            } else {
+              // Auto-profile sync: If profile is missing in public.users, create it!
+              const defaultName = authData.user.user_metadata?.full_name || email.split('@')[0];
+              const { data: newProfile, error: insertError } = await supabase
+                .from('users')
+                .insert({
+                  id: authData.user.id,
+                  email: email.toLowerCase(),
+                  full_name: defaultName,
+                  role: 'admin'
+                })
+                .select()
+                .single();
+
+              if (insertError) {
+                console.error('Failed to auto-create public user profile:', insertError);
+                // Fallback to minimal user structure
+                mappedUser = {
+                  id: authData.user.id,
+                  email: authData.user.email || email,
+                  fullName: defaultName,
+                  role: 'admin'
+                };
+              } else {
+                mappedUser = {
+                  id: newProfile.id,
+                  email: newProfile.email,
+                  fullName: newProfile.full_name,
+                  role: newProfile.role as UserRole,
+                  avatarUrl: newProfile.avatar_url || undefined
+                };
+              }
+            }
+
             set({ currentUser: mappedUser, isAuthenticated: true });
             saveState(get());
             return true;
@@ -699,45 +746,80 @@ export const useCRMStore = create<CRMState>((set, get) => {
       
       return false;
     },
-    register: async (email, fullName, role) => {
+    register: async (email, password = '', fullName = '', role = 'admin') => {
       if (isSupabaseConfigured && supabase) {
         try {
-          const { data: exists, error: checkError } = await supabase
-            .from('users')
-            .select('*')
-            .eq('email', email.toLowerCase())
-            .maybeSingle();
+          // 1. Register with Supabase Auth
+          const { data: authData, error: authError } = await supabase.auth.signUp({
+            email: email.toLowerCase(),
+            password: password,
+            options: {
+              data: {
+                full_name: fullName,
+                role: role
+              }
+            }
+          });
 
-          if (checkError) throw checkError;
-          if (exists) return false;
+          if (authError) throw authError;
 
-          const { data: newUser, error: insertError } = await supabase
-            .from('users')
-            .insert({
-              email: email.toLowerCase(),
-              full_name: fullName,
-              role: role
-            })
-            .select()
-            .single();
+          if (authData.user) {
+            // 2. Insert profile into public.users
+            const { data: newUser, error: insertError } = await supabase
+              .from('users')
+              .insert({
+                id: authData.user.id,
+                email: email.toLowerCase(),
+                full_name: fullName,
+                role: role
+              })
+              .select()
+              .single();
 
-          if (insertError) throw insertError;
+            if (insertError) {
+              console.error('Error inserting into public.users:', insertError);
+              // Check if profile was already inserted by a trigger
+              const { data: existingProfile } = await supabase
+                .from('users')
+                .select('*')
+                .eq('id', authData.user.id)
+                .maybeSingle();
+                
+              if (existingProfile) {
+                const mappedUser: User = {
+                  id: existingProfile.id,
+                  email: existingProfile.email,
+                  fullName: existingProfile.full_name,
+                  role: existingProfile.role as UserRole,
+                  avatarUrl: existingProfile.avatar_url || undefined
+                };
+                set(state => ({
+                  users: [...state.users.filter(u => u.id !== mappedUser.id), mappedUser],
+                  currentUser: mappedUser,
+                  isAuthenticated: true
+                }));
+                saveState(get());
+                return true;
+              }
+              throw insertError;
+            }
 
-          if (newUser) {
-            const mappedUser: User = {
-              id: newUser.id,
-              email: newUser.email,
-              fullName: newUser.full_name,
-              role: newUser.role as UserRole,
-              avatarUrl: newUser.avatar_url || undefined
-            };
-            set(state => ({
-              users: [...state.users, mappedUser],
-              currentUser: mappedUser,
-              isAuthenticated: true
-            }));
-            saveState(get());
-            return true;
+            if (newUser) {
+              const mappedUser: User = {
+                id: newUser.id,
+                email: newUser.email,
+                fullName: newUser.full_name,
+                role: newUser.role as UserRole,
+                avatarUrl: newUser.avatar_url || undefined
+              };
+              set(state => ({
+                users: [...state.users, mappedUser],
+                currentUser: mappedUser,
+                isAuthenticated: true
+              }));
+              saveState(get());
+              return true;
+            }
           }
           return false;
         } catch (e) {

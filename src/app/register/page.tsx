@@ -48,7 +48,7 @@ export default function RegisterPage() {
     }
     setIsLoading(true);
     try {
-      const success = await register(email, name, role);
+      const success = await register(email, password, name, role);
       if (success) {
         addToast(t('auth.registerSuccess'), 'success');
         router.push('/dashboard');
@@ -64,9 +64,9 @@ export default function RegisterPage() {
   };
 
   const features = [
-    { icon: Shield, label: language === 'he' ? 'אבטחה ברמה עסקית' : 'Enterprise-grade security' },
-    { icon: Zap, label: language === 'he' ? 'ממשק מהיר ורספונסיבי' : 'Fast & responsive interface' },
-    { icon: Globe2, label: language === 'he' ? 'תמיכה מלאה בעברית ואנגלית' : 'Full Hebrew & English support' },
+    { icon: Shield, label: language === 'he' ? 'אבטחת מידע ומסמכי שילוח' : 'Secure document management' },
+    { icon: Zap, label: language === 'he' ? 'מעקב בזמן אמת אחר מטענים' : 'Real-time cargo tracking' },
+    { icon: Globe2, label: language === 'he' ? 'תמיכה במעברים בינלאומיים' : 'Global shipping network support' },
   ];
 
   const inputClass = (field: string) => `
@@ -111,15 +111,15 @@ export default function RegisterPage() {
             <h1 className="text-4xl xl:text-5xl font-bold text-white leading-tight"
               style={{ fontFamily: 'Outfit, sans-serif' }}>
               {language === 'he' ? (
-                <>הצטרף אל<br /><span style={{ background: 'linear-gradient(90deg, #8B5CF6, #3B82F6)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>Nexora CRM</span><br />היום</>
+                <>הצטרף אל<br /><span style={{ background: 'linear-gradient(90deg, #8B5CF6, #3B82F6)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>Nexora Logistics</span><br />היום</>
               ) : (
-                <>Join<br /><span style={{ background: 'linear-gradient(90deg, #8B5CF6, #3B82F6)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>Nexora CRM</span><br />today</>
+                <>Join<br /><span style={{ background: 'linear-gradient(90deg, #8B5CF6, #3B82F6)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>Nexora Logistics</span><br />today</>
               )}
             </h1>
             <p className="mt-4 text-slate-400 text-base leading-relaxed max-w-xs">
               {language === 'he'
-                ? 'צור חשבון חינמי ותתחיל לנהל את העסק שלך בצורה חכמה ויעילה יותר.'
-                : 'Create a free account and start managing your business smarter and more efficiently.'}
+                ? 'צור חשבון ותתחיל לנהל את משלוחי המטענים והבוקינגס בצורה חכמה ויעילה יותר.'
+                : 'Create an account and start managing your cargo shipments and bookings more efficiently.'}
             </p>
           </div>
 
@@ -143,13 +143,13 @@ export default function RegisterPage() {
           <div className="p-4 rounded-xl border"
             style={{ background: 'rgba(255,255,255,0.03)', borderColor: 'rgba(255,255,255,0.07)' }}>
             <div className="flex items-center justify-between mb-2">
-              <span className="text-slate-400 text-xs">{language === 'he' ? 'יעד מכירות חודשי' : 'Monthly sales target'}</span>
+              <span className="text-slate-400 text-xs">{language === 'he' ? 'יעד מטענים חודשי' : 'Monthly shipping target'}</span>
               <span className="text-white text-xs font-semibold">68%</span>
             </div>
             <div className="h-1.5 rounded-full" style={{ background: 'rgba(255,255,255,0.1)' }}>
               <div className="h-full rounded-full" style={{ width: '68%', background: 'linear-gradient(90deg, #3B82F6, #8B5CF6)' }} />
             </div>
-            <p className="text-slate-600 text-xs mt-2">$68,400 / $100,000</p>
+            <p className="text-slate-600 text-xs mt-2">684 / 1,000 TEU (מכולות)</p>
           </div>
         </div>
 

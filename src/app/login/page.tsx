@@ -38,12 +38,14 @@ export default function LoginPage() {
     }
     setIsLoading(true);
     try {
-      const success = await login(email, '', 'agent');
+      const success = await login(email, password);
       if (success) {
         addToast(t('auth.loginSuccess'), 'success');
       } else {
         addToast(
-          language === 'he' ? 'שגיאה בהתחברות – משתמש לא קיים במערכת' : 'Login failed – user not found',
+          language === 'he' 
+            ? 'שגיאה בהתחברות – פרטים שגויים או משתמש לא קיים במערכת' 
+            : 'Login failed – incorrect credentials or user not found',
           'error'
         );
       }
@@ -56,9 +58,9 @@ export default function LoginPage() {
   };
 
   const stats = [
-    { icon: TrendingUp, label: language === 'he' ? 'צמיחת מכירות' : 'Sales Growth', value: '+24%', color: '#10B981' },
-    { icon: Users, label: language === 'he' ? 'לקוחות פעילים' : 'Active Clients', value: '1,284', color: '#3B82F6' },
-    { icon: BarChart3, label: language === 'he' ? 'עסקאות פתוחות' : 'Open Deals', value: '58', color: '#8B5CF6' },
+    { icon: TrendingUp, label: language === 'he' ? 'נפח הובלות' : 'Freight Volume', value: '+28%', color: '#10B981' },
+    { icon: Users, label: language === 'he' ? 'יבואנים ויצואנים' : 'Active Clients', value: '1,284', color: '#3B82F6' },
+    { icon: BarChart3, label: language === 'he' ? 'מטענים בדרך' : 'Active Shipments', value: '142', color: '#8B5CF6' },
   ];
 
   return (
@@ -92,15 +94,15 @@ export default function LoginPage() {
             <h1 className="text-4xl xl:text-5xl font-bold text-white leading-tight"
               style={{ fontFamily: 'Outfit, sans-serif' }}>
               {language === 'he' ? (
-                <>נהל את<br /><span style={{ background: 'linear-gradient(90deg, #3B82F6, #8B5CF6)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>העסק שלך</span><br />בחכמה</>
+                <>נהל את<br /><span style={{ background: 'linear-gradient(90deg, #3B82F6, #8B5CF6)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>משלוחי המטענים</span><br />בקלות ובחכמה</>
               ) : (
-                <>Manage your<br /><span style={{ background: 'linear-gradient(90deg, #3B82F6, #8B5CF6)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>business</span><br />smarter</>
+                <>Manage your<br /><span style={{ background: 'linear-gradient(90deg, #3B82F6, #8B5CF6)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>cargo & shipments</span><br />smarter</>
               )}
             </h1>
             <p className="mt-4 text-slate-400 text-base leading-relaxed max-w-xs">
               {language === 'he'
-                ? 'מערכת CRM מודרנית לניהול לידים, לקוחות ומשימות – הכל במקום אחד.'
-                : 'A modern CRM system for managing leads, customers, and tasks — all in one place.'}
+                ? 'מערכת CRM מתקדמת לניהול מטענים, שילוח בינלאומי, יבואנים ויצואנים.'
+                : 'Advanced CRM system for managing cargo, international logistics, and client bookings.'}
             </p>
           </div>
 
