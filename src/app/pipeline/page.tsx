@@ -122,7 +122,7 @@ export default function PipelinePage() {
         <div className="flex items-center gap-3">
           <Button 
             variant="outline" 
-            leftIcon={<Settings className="w-4 h-4" />}
+            leftIcon={<Plus className="w-4 h-4" />}
             onClick={() => setIsStageModalOpen(true)}
           >
             {t('pipeline.addStatus')}
@@ -273,6 +273,19 @@ export default function PipelinePage() {
             </div>
           );
         })}
+
+        {/* Virtual Column to Add New Status */}
+        <div
+          onClick={() => setIsStageModalOpen(true)}
+          className="flex-shrink-0 w-80 rounded-2xl border border-dashed border-border-custom bg-bg-secondary/20 hover:bg-bg-secondary/30 hover:border-brand-primary/40 transition-all duration-200 min-h-[500px] flex flex-col items-center justify-center cursor-pointer gap-2.5 group select-none"
+        >
+          <div className="w-12 h-12 rounded-full border border-dashed border-border-custom group-hover:border-brand-primary group-hover:bg-brand-primary-light/10 text-text-tertiary group-hover:text-brand-primary flex items-center justify-center transition-all duration-200">
+            <Plus className="w-6 h-6" />
+          </div>
+          <span className="text-sm font-semibold text-text-secondary group-hover:text-brand-primary transition-colors">
+            {isRTL ? 'הוסף סטטוס חדש' : 'Add New Status'}
+          </span>
+        </div>
       </div>
 
       {/* --- ADD NEW PIPELINE STAGE MODAL --- */}
