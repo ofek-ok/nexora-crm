@@ -6,6 +6,7 @@ import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Modal } from '@/components/ui/Modal';
 import { Input } from '@/components/ui/Input';
+import { Select } from '@/components/ui/Select';
 import { 
   Plus, 
   Trash2, 
@@ -16,7 +17,7 @@ import {
   Grid,
   ChevronRight
 } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 
 export default function PipelinePage() {
   const { t, language, dir } = useTranslation();
@@ -24,8 +25,10 @@ export default function PipelinePage() {
 
   const leads = useCRMStore((state) => state.leads);
   const statuses = useCRMStore((state) => state.pipelineStatuses);
+  const users = useCRMStore((state) => state.users);
   const currentUser = useCRMStore((state) => state.currentUser);
   const updateLead = useCRMStore((state) => state.updateLead);
+  const addLead = useCRMStore((state) => state.addLead);
   const addStatus = useCRMStore((state) => state.addStatus);
   const deleteStatus = useCRMStore((state) => state.deleteStatus);
   const addToast = useCRMStore((state) => state.addToast);
@@ -39,6 +42,40 @@ export default function PipelinePage() {
   const [stageNameEn, setStageNameEn] = useState('');
   const [stageNameHe, setStageNameHe] = useState('');
   const [stageColor, setStageColor] = useState('#2563EB');
+
+  // Add Lead Modal state
+  const [isAddLeadOpen, setIsAddLeadOpen] = useState(false);
+  const [formData, setFormData] = useState({
+    companyName: '',
+    contactName: '',
+    email: '',
+    phone: '',
+    country: '',
+    industry: 'Sea Freight (FCL)',
+    leadSource: 'Shanghai Port',
+    dealValue: 0,
+    assignedOwnerId: 'u-1',
+    statusId: 's-1',
+    tags: ''
+  });
+
+  // Sources and Industries options for dropdowns
+  const sourceOptions = [
+    { value: 'Shanghai Port', label: 'Shanghai Port (נמל שנגחאי)' },
+    { value: 'Haifa Port', label: 'Haifa Port (נמל חיפה)' },
+    { value: 'Ashdod Port', label: 'Ashdod Port (נמל אשדוד)' },
+    { value: 'Rotterdam Port', label: 'Rotterdam Port (נמל רוטרדם)' },
+    { value: 'Ben Gurion Airport', label: 'Ben Gurion Airport (נתב"ג)' },
+    { value: 'Port of Houston', label: 'Port of Houston (נמל יוסטון)' }
+  ];
+
+  const industryOptions = [
+    { value: 'Sea Freight (FCL)', label: 'Sea Freight - FCL (מכולה מלאה)' },
+    { value: 'Sea Freight (LCL)', label: 'Sea Freight - LCL (מכולה חלקית)' },
+    { value: 'Air Freight', label: 'Air Freight (שילוח אווירי)' },
+    { value: 'Land Transport', label: 'Land Transport (הובלה יבשתית)' },
+    { value: 'Customs Clearance', label: 'Customs Clearance (עמילות מכס)' }
+  ];
 
   // --- DRAG AND DROP HANDLERS ---
   const handleDragStart = (e: React.DragEvent, id: string) => {
@@ -98,6 +135,53 @@ export default function PipelinePage() {
     }
   };
 
+  // --- ADD LEAD HANDLERS ---
+  const handleOpenAddLead = (statusId?: string | React.MouseEvent) => {
+    const defaultStatusId = (statusId && typeof statusId === 'string') 
+      ? statusId 
+      : (statuses[0]?.id || 's-1');
+
+    setFormData({
+      companyName: '',
+      contactName: '',
+      email: '',
+      phone: '',
+      country: '',
+      industry: 'Sea Freight (FCL)',
+      leadSource: 'Shanghai Port',
+      dealValue: 0,
+      assignedOwnerId: users[0]?.id || 'u-1',
+      statusId: defaultStatusId,
+      tags: ''
+    });
+    setIsAddLeadOpen(true);
+  };
+
+  const handleAddLeadSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!formData.companyName || !formData.contactName || !formData.email) {
+      addToast(isRTL ? 'נא למלא את כל שדות החובה' : 'Please fill in all required fields', 'error');
+      return;
+    }
+
+    addLead({
+      companyName: formData.companyName,
+      contactName: formData.contactName,
+      email: formData.email,
+      phone: formData.phone,
+      country: formData.country,
+      industry: formData.industry,
+      leadSource: formData.leadSource,
+      dealValue: Number(formData.dealValue),
+      assignedOwnerId: formData.assignedOwnerId,
+      statusId: formData.statusId,
+      tags: formData.tags ? formData.tags.split(',').map(t => t.trim()) : []
+    });
+
+    setIsAddLeadOpen(false);
+    addToast(isRTL ? 'בוקינג חדש נוצר בהצלחה' : 'New booking created successfully', 'success');
+  };
+
   // Pipeline overall summary (Disabled: Everyone sees everything)
   const visibleLeads = leads;
   const openLeads = visibleLeads.filter(l => l.statusId !== 's-5' && l.statusId !== 's-6');
@@ -120,6 +204,15 @@ export default function PipelinePage() {
         </div>
         
         <div className="flex items-center gap-3">
+          {/* Add Lead button */}
+          <Button 
+            onClick={() => handleOpenAddLead()}
+            leftIcon={<Plus className="w-4 h-4" />}
+          >
+            {t('leads.newLead')}
+          </Button>
+
+          {/* Add Stage button */}
           <Button 
             variant="outline" 
             leftIcon={<Plus className="w-4 h-4" />}
@@ -210,16 +303,27 @@ export default function PipelinePage() {
                   </span>
                 </div>
                 
-                {/* Delete Stage Button (only show if not default built-in status to prevent breakages, or show for all but keep 1) */}
-                {statuses.length > 1 && !['s-1', 's-2', 's-3', 's-4', 's-5', 's-6'].includes(status.id) && (
+                <div className="flex items-center gap-1">
+                  {/* Add Lead to Stage Button */}
                   <button
-                    onClick={() => handleDeleteStage(status.id, isRTL ? status.nameHe : status.nameEn)}
-                    className="p-1 rounded text-text-tertiary hover:text-brand-danger hover:bg-brand-danger-light/10 transition-colors cursor-pointer"
-                    title={isRTL ? 'מחק שלב' : 'Delete stage'}
+                    onClick={() => handleOpenAddLead(status.id)}
+                    className="p-1 rounded text-text-tertiary hover:text-brand-primary hover:bg-brand-primary-light/10 transition-colors cursor-pointer"
+                    title={isRTL ? 'הוסף ליד לשלב זה' : 'Add lead to this stage'}
                   >
-                    <Trash2 className="w-3.5 h-3.5" />
+                    <Plus className="w-3.5 h-3.5" />
                   </button>
-                )}
+
+                  {/* Delete Stage Button (only show if not default built-in status to prevent breakages, or show for all but keep 1) */}
+                  {statuses.length > 1 && !['s-1', 's-2', 's-3', 's-4', 's-5', 's-6'].includes(status.id) && (
+                    <button
+                      onClick={() => handleDeleteStage(status.id, isRTL ? status.nameHe : status.nameEn)}
+                      className="p-1 rounded text-text-tertiary hover:text-brand-danger hover:bg-brand-danger-light/10 transition-colors cursor-pointer"
+                      title={isRTL ? 'מחק שלב' : 'Delete stage'}
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </button>
+                  )}
+                </div>
               </div>
 
               {/* Column Stats */}
@@ -324,6 +428,100 @@ export default function PipelinePage() {
 
           <div className="flex justify-end gap-3 pt-4 border-t border-border-custom">
             <Button type="button" variant="outline" onClick={() => setIsStageModalOpen(false)}>
+              {t('common.cancel')}
+            </Button>
+            <Button type="submit">
+              {t('common.save')}
+            </Button>
+          </div>
+        </form>
+      </Modal>
+
+      {/* --- ADD NEW LEAD MODAL --- */}
+      <Modal isOpen={isAddLeadOpen} onClose={() => setIsAddLeadOpen(false)} title={t('leads.newLead')}>
+        <form onSubmit={handleAddLeadSubmit} className="space-y-4 text-start">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <Input
+              label={t('common.company')}
+              value={formData.companyName}
+              onChange={(e) => setFormData({ ...formData, companyName: e.target.value })}
+              required
+            />
+            <Input
+              label={t('common.contact')}
+              value={formData.contactName}
+              onChange={(e) => setFormData({ ...formData, contactName: e.target.value })}
+              required
+            />
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <Input
+              label={t('common.email')}
+              type="email"
+              value={formData.email}
+              onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+              required
+            />
+            <Input
+              label={t('common.phone')}
+              value={formData.phone}
+              onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+            />
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <Input
+              label={t('common.dealValue') + ' ($)'}
+              type="number"
+              value={formData.dealValue}
+              onChange={(e) => setFormData({ ...formData, dealValue: Number(e.target.value) })}
+            />
+            <Select
+              label={t('common.source')}
+              value={formData.leadSource}
+              onChange={(e) => setFormData({ ...formData, leadSource: e.target.value })}
+              options={sourceOptions}
+            />
+            <Select
+              label={t('common.industry')}
+              value={formData.industry}
+              onChange={(e) => setFormData({ ...formData, industry: e.target.value })}
+              options={industryOptions}
+            />
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <Input
+              label={t('common.country')}
+              value={formData.country}
+              onChange={(e) => setFormData({ ...formData, country: e.target.value })}
+            />
+            <Input
+              label={t('common.tags') + ' (' + (isRTL ? 'מופרדים בפסיקים' : 'comma separated') + ')'}
+              value={formData.tags}
+              onChange={(e) => setFormData({ ...formData, tags: e.target.value })}
+              placeholder="e.g. SaaS, Enterprise"
+            />
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <Select
+              label={t('common.owner')}
+              value={formData.assignedOwnerId}
+              onChange={(e) => setFormData({ ...formData, assignedOwnerId: e.target.value })}
+              options={users.map(u => ({ value: u.id, label: u.fullName }))}
+            />
+            <Select
+              label={t('common.status')}
+              value={formData.statusId}
+              onChange={(e) => setFormData({ ...formData, statusId: e.target.value })}
+              options={statuses.map(s => ({ value: s.id, label: isRTL ? s.nameHe : s.nameEn }))}
+            />
+          </div>
+
+          <div className="flex justify-end gap-3 pt-4 border-t border-border-custom">
+            <Button type="button" variant="outline" onClick={() => setIsAddLeadOpen(false)}>
               {t('common.cancel')}
             </Button>
             <Button type="submit">
